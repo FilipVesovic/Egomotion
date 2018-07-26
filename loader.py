@@ -5,7 +5,7 @@ import numpy as np
 MATRIX_ROWS = 3
 MATRIX_COLUMNS = 4
 
-LABELS_DIR = "poses"
+LABELS_DIR = os.path.join("dataset", "poses")
 DATASET_DIR = os.path.join("dataset", "sequences")
 
 TRAINING_SEQS = 10
@@ -58,14 +58,14 @@ class Annotation:
         return self.projection_matrix
 
     def get_image(self):
-        camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:05}.png".format(self.frame_id))
-        camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:05}.png".format(self.frame_id))
+        camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id))
+        camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(self.frame_id))
 
         camera1_image = cv2.imread(camera1_path)
         camera2_image = cv2.imread(camera2_path)
 
-        camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:05}.png".format(self.frame_id + 1))
-        camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:05}.png".format(self.frame_id + 1))
+        camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id + 1))
+        camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(self.frame_id + 1))
 
         camera1_image_next = cv2.imread(camera1_path_next)
         camera2_image_next = cv2.imread(camera2_path_next)
