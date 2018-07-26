@@ -45,14 +45,23 @@ class Loader:
 
                 frame_id += 1
 
-            dataset = dataset[ : -1] # FIXME:
         return dataset
 
 class Annotation:
-    def __init__(self, sequence_id, frame_id, projection_matrix):
+    def __init__(self, sequence_id, frame_id, matrix1, matrix2):
         self.sequence_id = sequence_id
         self.frame_id = frame_id
-        self.projection_matrix = projection_matrix
+
+        #self.projection_matrix = np.concatenate(np.matmul(matrix1[:,:3], matrix2[:,:3]), np.matmul(matrix1[:,:3], matrix2[:,3] - matrix1[:,3])
+        rotation_mat = self. rotation_mat = np.concatenate(np.matmul(matrix1[:,:3], matrix2[:,:3]))
+        self.translation_mat = np.matmul(matrix1[:,:3], matrix2[:,3] - matrix1[:,3])
+
+        #Euler's angles
+
+        phi_x = np.arctan2(rotation_mat[2][1], rotation_mat[2][2])
+        phi_y = np.arctan2(-rotation_mat[2][0], np.sqrt(rotation_mat[2][1]^2 + rotation_mat[2][2]^2))
+        phi_z = np.arctan2(rotation_mat[1][0], rotation_mat[0][0])
+
 
     def get_matrix(self):
         return self.projection_matrix
@@ -79,3 +88,4 @@ class Annotation:
 
     def print_anno(self):
         print("#{0} #{1} {2}".format(self.sequence_id, self.frame_id, self.projection_matrix))
+3
