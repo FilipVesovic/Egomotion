@@ -34,7 +34,7 @@ class Loader:
             dataset = []
             frame_id = 0
             last_matrix = None
-            
+
             for line in file:
                 numbers_text = line.split()
                 numbers = np.zeros(len(numbers_text))
@@ -72,18 +72,18 @@ class Annotation:
         self.frame_id = frame_id
 
         #self.projection_matrix = np.concatenate(np.matmul(matrix1[:,:3], matrix2[:,:3]), np.matmul(matrix1[:,:3], matrix2[:,3] - matrix1[:,3])
-        rotation_mat = self. rotation_mat = np.concatenate(np.matmul(matrix1[:,:3], matrix2[:,:3]))
+        rotation_mat = np.concatenate(np.matmul(matrix1[:,:3], matrix2[:,:3]))
         self.translation_mat = np.matmul(matrix1[:,:3], matrix2[:,3] - matrix1[:,3])
 
         #Euler's angles
 
-        phi_x = np.arctan2(rotation_mat[2][1], rotation_mat[2][2])
-        phi_y = np.arctan2(-rotation_mat[2][0], np.sqrt(rotation_mat[2][1]^2 + rotation_mat[2][2]^2))
-        phi_z = np.arctan2(rotation_mat[1][0], rotation_mat[0][0])
+        self.phi_x = np.arctan2(rotation_mat[2][1], rotation_mat[2][2])
+        self.phi_y = np.arctan2(-rotation_mat[2][0], np.sqrt(rotation_mat[2][1]^2 + rotation_mat[2][2]^2))
+        self.phi_z = np.arctan2(rotation_mat[1][0], rotation_mat[0][0])
 
 
     def get_matrix(self):
-        return self.projection_matrix
+        return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.phi_x,self.phi_y,self.phi_z])
 
     def get_image(self):
         camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id))
@@ -103,7 +103,7 @@ class Annotation:
         camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
         camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
-        return camera1_image, camera2_image, camera1_image_next, camera2_image_next
+        return np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2) 
 
     def print_anno(self):
         print("#{0} #{1} {2}".format(self.sequence_id, self.frame_id, self.projection_matrix))
