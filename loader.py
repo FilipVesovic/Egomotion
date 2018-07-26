@@ -2,8 +2,8 @@ import os
 import cv2
 import numpy as np
 
-MATRIX_ROWS = 3
-MATRIX_COLUMNS = 4
+MATRIX_ROWS = 4
+MATRIX_COLUMNS = 3
 
 LABELS_DIR = os.path.join("dataset", "poses")
 DATASET_DIR = os.path.join("dataset", "sequences")
@@ -33,6 +33,8 @@ class Loader:
         with open(path, "r") as file:
             dataset = []
             frame_id = 0
+            last_matrix = None
+            
             for line in file:
                 numbers_text = line.split()
                 numbers = np.zeros(len(numbers_text))
@@ -40,13 +42,30 @@ class Loader:
                     numbers[i] = float(numbers_text[i])
 
                 projection_matrix = np.reshape(numbers,(MATRIX_ROWS, MATRIX_COLUMNS))
-                anno = Annotation(sequence_id, frame_id, projection_matrix)
-                dataset.append(anno)
+                if(last_matrix is not None):
+                    anno = Annotation(sequence_id, frame_id - 1, last_matrix, projection_matrix)
+                    dataset.append(anno)
+                last_matrix = projection_matrix
 
                 frame_id += 1
 
             dataset = dataset[ : -1] # FIXME:
         return dataset
+
+    def get_batch(self, batch_size):
+        batch_ids = np.random.randint(0, len(self.training_datset), size = batch_size)
+        imgs = None
+        labels = None
+        for id in batch_ids:
+            if(imgs is None):
+                imgs = np.expand_dims(self.training_datset[id].get_image(), axis = 0)
+            else:
+                imgs = np.concatenate((imgs, np.expand_dims(self.training_datset[id].get_image(), axis = 0)),axis = 0)
+            if(labels is None):
+                labels = np.expand_dims(self.training_datset[id].get_matrix(), axis = 0)
+            else:
+                labels = np.concatenate((imgs, np.expand_dims(self.training_datset[id].get_matrix(), axis = 0)),axis = 0)
+        return imgs, labels
 
 class Annotation:
     def __init__(self, sequence_id, frame_id, projection_matrix):
