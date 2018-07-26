@@ -79,9 +79,3 @@ class Annotation:
 
     def print_anno(self):
         print("#{0} #{1} {2}".format(self.sequence_id, self.frame_id, self.projection_matrix))
-
-loader = Loader()
-img = loader.training_datset[0].get_image()
-cv2.imshow('image',img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
