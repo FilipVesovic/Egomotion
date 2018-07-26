@@ -1,5 +1,5 @@
 import numpy as np
 import tensorflow as tf
 
-def get_graph(x, y):
+def get_graph(x):
     pass
