@@ -146,16 +146,11 @@ class Annotation:
 
         matrix1 = np.vstack([matrix1, [0,0,0,1]])
         matrix2 = np.vstack([matrix2, [0,0,0,1]])
-    #    print(matrix1)
-    #print(matrix2)
-        #posa1*inv pose0
-        rotation = np.matmul(np.linalg.inv(matrix2),matrix1)
-        #rotation = np.matmul(matrix2,np.linalg.inv(matrix1))
-        #rotation = np.matmul(np.linalg.inv(matrix1),matrix2)
-    #    print(rotation)
+        
+        rotation = np.matmul(matrix2,np.linalg.inv(matrix1))
+
         self.translation_mat = rotation[0:3,3]
-    #    print(self.translation_mat)
-        #v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
+
 
         v = self.rotationMatrixToEulerAngles(rotation[:3,:3])
 
