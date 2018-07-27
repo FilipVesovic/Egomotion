@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+from random import shuffle
 
 MATRIX_ROWS = 3
 MATRIX_COLUMNS = 4
@@ -19,6 +20,7 @@ class Loader:
         labels_paths = sorted(labels_paths)
 
         self.training_dataset = []
+        self.validation_dataset = []
         self.testing_dataset = []
 
         for id in range(0, TRAINING_SEQS):
@@ -29,7 +31,14 @@ class Loader:
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.testing_dataset += self.load(path, id)
 
+        shuffle(self.training_dataset)
+
+        valid_split = len(self.training_dataset * 0.8)
+        self.training_dataset = self.training_dataset[:valid_split]
+        self.validation_dataset = self.validation_dataset[valid_split:]
+
         print("Training set size: ", len(self.training_dataset))
+        print("Validation set size: ", len(self.validation_dataset))
         print("Testing set size: ", len(self.testing_dataset))
 
     def load(self, path, sequence_id):
