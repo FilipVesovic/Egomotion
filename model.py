@@ -1,61 +1,84 @@
-import matplotlib.pyplot as plt
-import time
-import random
-import tensorflow as tf
-from model import load_model,predict
-from loader import get_test
 import numpy as np
-sess, pred, x, training = load_model('model_00010.ckpt')
-ysample = random.sample(range(-50, 50), 100)
+import tensorflow as tf
+from network import get_graph
+from loader import Loader
+import os
+WIDTH = 256
+HEIGHT = 256
 
-rot_mat = np.eye(3)
-pos = np.zeros((3))
-xdata = []
-ydata = []
-plt.show()
+LOG_DIR = "log"
+MODEL_DIR = "model"
 
-axes = plt.gca()
-axes.set_xlim(-200, 200)
-axes.set_ylim(-200, 200)
-line, = axes.plot(xdata, ydata, 'r-')
+def show_params_num():
+    total_parameters = 0
+    for variable in tf.trainable_variables():
+        shape = variable.get_shape()
+        variable_parameters = 1
+        for dim in shape:
+            variable_parameters *= dim.value
+        total_parameters += variable_parameters
+    print(total_parameters)
 
-def R_x(phi):
-    return np.array([[1, 0, 0], [0, np.cos(phi), -np.sin(phi)], [0, np.sin(phi), np.cos(phi)]])
+def train(dataset, epochs, iterations, batch_size):
+    val_iterations = 10
 
-def R_y(phi):
-    return np.array([[np.cos(phi), 0, np.sin(phi)], [0, 1, 0], [-np.sin(phi), 0, np.cos(phi)]])
+    x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
+    y = tf.placeholder(tf.float32, [None, 6])
+    training = tf.placeholder(tf.bool)
+    pred = get_graph(x, training)
 
-def R_z(phi):
-    return np.array([[np.cos(phi), -np.sin(phi), 0], [np.sin(phi), np.cos(phi), 0], [0, 0, 1]])
+    loss = tf.reduce_mean(tf.square(y - pred))
 
-<<<<<<< HEAD
-data = get_test(0)
-=======
-def load_model():
-    sess = tf.Session()
->>>>>>> parent of 8d1a04e... Add load test
+    training_summary = tf.summary.scalar("training_loss", loss)
+    validation_summary = tf.summary.scalar("validation_loss", loss)
 
-for dat in data:
-    vec = predict(sess, pred, x, training,np.expand_dims( dat,axis=0)) #dx dy dz alfa beta gama
-    vec= vec[0]
-    d_transl = vec[:3]
-    d_rot_mat = np.matmul(np.matmul(R_z(vec[5]), R_y(vec[4])), R_x(vec[3]))
+    optimizer = tf.train.AdamOptimizer(5e-4)
+    with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
+        opt = optimizer.minimize(loss)
 
-<<<<<<< HEAD
-    pos += np.matmul(d_transl, np.linalg.inv(rot_mat))
-    rot_mat = np.matmul(rot_mat, d_rot_mat)
-=======
     saver = tf.train.Saver()
-    saver.restore(sess, os.path.join(MODEL_DIR, "model.ckpt"))
+    writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion"))
+    writer.add_graph(tf.get_default_graph())
+
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+
+    show_params_num()
+
+    step = 0
+    val_step = 0
+
+    with tf.Session(config=config) as sess:
+        sess.run(tf.global_variables_initializer())
+        for epoch in range(epochs):
+
+            for iter in range(iterations):
+                data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
+                _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
+                writer.add_summary(summary, step)
+                step+= 1
+
+            data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
+
+            for iter in range(val_iterations):
+                _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
+                writer.add_summary(summary, val_step)
+                val_step += 1
+
+            saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
+
+def load_model(model_name):
+    sess = tf.Session()
+
+    x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
+    pred = get_graph(x, training)
+
+    saver = tf.train.Saver()
+    saver.restore(sess, os.path.join(MODEL_DIR, model_name))
     return sess
->>>>>>> parent of 8d1a04e... Add load test
 
-    xdata.append(pos[0])
-    ydata.append(pos[2])
-    line.set_xdata(xdata)
-    line.set_ydata(ydata)
-    plt.draw()
-    plt.pause(1e-17)
-    time.sleep(0.1)
+def predict(sess, data):
+    prediction = sess.run(pred, feed_dict = {x : data, training : False})
+    return prediction
 
-plt.show()
+train(Loader(),100, 100, 32)

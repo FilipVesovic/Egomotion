@@ -28,19 +28,11 @@ def R_y(phi):
 def R_z(phi):
     return np.array([[np.cos(phi), -np.sin(phi), 0], [np.sin(phi), np.cos(phi), 0], [0, 0, 1]])
 
-<<<<<<< HEAD
-data = get_test(0)
-
-for dat in data:
-    vec = predict(sess, pred, x, training,np.expand_dims( dat,axis=0)) #dx dy dz alfa beta gama
-    vec= vec[0]
-=======
 
 
 for i in range(100):
     vec = predict(sess, data) #dx dy dz alfa beta gama
 
->>>>>>> parent of 8d1a04e... Add load test
     d_transl = vec[:3]
     d_rot_mat = np.matmul(np.matmul(R_z(vec[5]), R_y(vec[4])), R_x(vec[3]))
 
