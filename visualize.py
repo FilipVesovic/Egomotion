@@ -39,8 +39,7 @@ def visualize(model_name):
     dat = data.get_test(MAX_BATCH_SIZE)
     truth = data.get_truth()
     for tru in truth:
-        rot = tru[:3,:3]
-        trans = true[:3,3]
+        trans = np.reshape(tru,(3,4))[:3,3]
         xdatatrue.append(trans[0])
         ydatatrue.append(trans[2])
         line2.set_xdata(xdatatrue)
