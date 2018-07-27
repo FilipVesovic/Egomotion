@@ -60,7 +60,7 @@ def train(dataset, epochs, iterations, batch_size):
 
             data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
 
-            for iter in range(val_iterations)
+            for iter in range(val_iterations):
                 _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
                 writer.add_summary(summary, val_step)
                 val_step += 1
