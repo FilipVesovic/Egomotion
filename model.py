@@ -90,5 +90,3 @@ def load_model(model_name):
 def predict(sess, pred, x, training, data):
     prediction = sess.run(pred, feed_dict = {x : data, training : False})
     return prediction
-
-#train(Loader(),100, 100, 32)
