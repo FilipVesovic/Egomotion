@@ -11,7 +11,7 @@ MATRIX_COLUMNS = 4
 LABELS_DIR = os.path.join("dataset", "poses")
 DATASET_DIR = os.path.join("dataset", "sequences")
 
-TRAINING_SEQS = 10
+TRAINING_SEQS = 11
 
 WIDTH = 256
 HEIGHT = 256
@@ -23,28 +23,20 @@ class Loader:
 
         self.training_dataset = []
         self.validation_dataset = []
-        self.testing_dataset = []
 
         for id in range(0, TRAINING_SEQS):
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.training_dataset += self.load(path, id)
-
-        for id in range(TRAINING_SEQS, len(labels_paths)):
-            path = os.path.join(LABELS_DIR, labels_paths[id])
-            self.testing_dataset += self.load(path, id)
-
-#        shuffle(self.training_dataset)
 
         valid_split = int(len(self.training_dataset) * 0.8)
         self.training = self.training_dataset
         self.training_dataset = self.training[:valid_split]
         self.validation_dataset = self.training[valid_split:]
 
-        self.visualize(self.training_dataset[:2000])
+        #self.visualize(self.training_dataset[:2000])
 
         print("Training set size: ", len(self.training_dataset))
         print("Validation set size: ", len(self.validation_dataset))
-        print("Testing set size: ", len(self.testing_dataset))
 
     def visualize(self, dataset):
         plot_numbers=[[],[],[],[],[],[]]
@@ -54,7 +46,6 @@ class Loader:
         for i in range(6):
             plt.plot(plot_numbers[i])
             plt.show()
-
 
     def load(self, path, sequence_id):
         with open(path, "r") as file:
@@ -67,9 +58,8 @@ class Loader:
                 numbers = np.zeros(len(numbers_text))
                 for i in range(len(numbers_text)):
                     numbers[i] = float(numbers_text[i])
-            #    print(line)
+
                 projection_matrix = np.reshape(numbers,(MATRIX_ROWS, MATRIX_COLUMNS))
-            #    print(projection_matrix)
                 if(last_matrix is not None):
                     anno = Annotation(sequence_id, frame_id - 1, last_matrix, projection_matrix)
                     dataset.append(anno)
