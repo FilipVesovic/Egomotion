@@ -66,7 +66,7 @@ class Model:
                     writer.add_summary(summary, step)
                     step+= 1
 
-                data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
+                data, labels = dataset.get_batch(dataset.validation_dataset, batch_size)
 
                 for iter in range(val_iterations):
                     _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
