@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from network import get_graph
 from loader import Loader
-
+import os
 WIDTH = 256
 HEIGHT = 256
 
@@ -24,14 +24,18 @@ def train(dataset, iterations, batch_size):
     writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion"))
     writer.add_graph(tf.get_default_graph())
 
-    with tf.Session() as sess:
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+
+    with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
         for iter in range(iterations):
             data, labels = dataset.get_batch(batch_size)
 
             _, loss_value = sess.run([opt, loss], feed_dict = {x : data, y : labels, training : True})
-            print("Loss value: {0}", loss_value))
-        saver.save(sess, os.path.join(MODEL_DIR, "model.ckpt"))
+            if iter % 100 == 0:
+                print("Loss value: {0}".format(loss_value))
+                saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(iter//100)))
 
 def predict(data):
     saver = tf.train.Saver()
@@ -44,4 +48,4 @@ def predict(data):
         prediction = sess.run(pred, feed_dict = {x : data, training : False})
         print(pred)
 
-train(Loader(),10,32)
+train(Loader(),10000,32)

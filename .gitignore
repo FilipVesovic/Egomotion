@@ -1,3 +1,5 @@
 .DS_store
 dataset
+log
+model
 __pycache__

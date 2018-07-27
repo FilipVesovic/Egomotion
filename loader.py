@@ -63,7 +63,7 @@ class Loader:
             if(labels is None):
                 labels = np.expand_dims(self.training_datset[id].get_matrix(), axis = 0)
             else:
-                labels = np.concatenate((imgs, np.expand_dims(self.training_datset[id].get_matrix(), axis = 0)),axis = 0)
+                labels = np.concatenate((labels, np.expand_dims(self.training_datset[id].get_matrix(), axis = 0)),axis = 0)
         return imgs, labels
 
 class Annotation:
@@ -88,14 +88,14 @@ class Annotation:
         camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id))
         camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(self.frame_id))
 
-        camera1_image = cv2.imread(camera1_path)
-        camera2_image = cv2.imread(camera2_path)
+        camera1_image = cv2.imread(camera1_path, 0)
+        camera2_image = cv2.imread(camera2_path, 0)
 
         camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id + 1))
         camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(self.frame_id + 1))
 
-        camera1_image_next = cv2.imread(camera1_path_next)
-        camera2_image_next = cv2.imread(camera2_path_next)
+        camera1_image_next = cv2.imread(camera1_path_next, 0)
+        camera2_image_next = cv2.imread(camera2_path_next, 0)
 
         camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
         camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
