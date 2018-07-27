@@ -34,6 +34,8 @@ def visualize(model_name):
 
     data = TestLoader(5)
     dat = data.get_test(MAX_BATCH_SIZE)
+    truth = data.get_truth()
+    print(truth)
     while dat is not None:
         vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
         for v in vec:
@@ -48,7 +50,7 @@ def visualize(model_name):
             line.set_xdata(xdata)
             line.set_ydata(ydata)
             plt.draw()
-            
+
         dat = data.get_test(MAX_BATCH_SIZE)
 
 

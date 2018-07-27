@@ -90,6 +90,35 @@ class TestLoader:
         self.next = 0
         self.sequence = sequence
 
+    def get_truth(self):
+        path = os.path.join(LABELS_DIR, '{:02}.txt'.format(self.sequence))
+        print(path)
+        with open(path, "r") as file:
+            dataset = []
+            frame_id = 0
+            last_matrix = None
+
+            for line in file:
+                numbers_text = line.split()
+                numbers = np.zeros(len(numbers_text))
+                for i in range(len(numbers_text)):
+                    numbers[i] = float(numbers_text[i])
+
+                projection_matrix = np.reshape(numbers,(MATRIX_ROWS, MATRIX_COLUMNS))
+
+                if(last_matrix is not None):
+                    anno = Annotation(sequence_id, frame_id - 1, last_matrix, projection_matrix)
+                    dataset.append(anno)
+                last_matrix = projection_matrix
+
+                frame_id += 1
+
+        ret = []
+        for dat in dataset:
+            ret.append(dat.get_matrix())
+
+        return ret
+
     def get_test(self, batch_size):
         low = self.next
         high = self.next + batch_size
@@ -124,6 +153,7 @@ class TestLoader:
         return dataset
 
 class Annotation:
+
     def rotationMatrixToEulerAngles(self, R):
         sy = math.sqrt(R[0,0] * R[0,0] +  R[1,0] * R[1,0])
 
