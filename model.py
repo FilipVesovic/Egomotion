@@ -68,7 +68,10 @@ def train(dataset, epochs, iterations, batch_size):
             saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
 
 def load_model(model_name):
-    sess = tf.Session()
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+
+    sess = tf.Session(config = config)
 
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
     training = tf.placeholder(tf.bool)
@@ -83,4 +86,4 @@ def predict(sess, pred, x, training, data):
     prediction = sess.run(pred, feed_dict = {x : data, training : False})
     return prediction
 
-train(Loader(),100, 100, 32)
+#train(Loader(),100, 100, 32)

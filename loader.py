@@ -82,7 +82,7 @@ class Loader:
 def get_test(sequence):
     frame_id = 0
     dataset = None
-    while os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
+    while frame_id < 200 and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
         camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id))
         camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_1",  "{:06}.png".format(frame_id))
 
@@ -105,6 +105,7 @@ def get_test(sequence):
             dataset = np.expand_dims(frame, axis = 0)
         else:
             dataset = np.concatenate((dataset, np.expand_dims(frame, axis = 0)))
+        frame_id += 1
     return dataset
 
 class Annotation:
@@ -139,6 +140,7 @@ class Annotation:
         self.z = v[2]
 
     def get_matrix(self):
+        print(np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y, self.z]))
         return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y, self.z])
 
     def get_image(self):
