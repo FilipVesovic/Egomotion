@@ -1,92 +1,95 @@
+import os
 import numpy as np
 import tensorflow as tf
 from network import get_graph
 from loader import Loader
-import os
+
 WIDTH = 256
 HEIGHT = 256
 
 LOG_DIR = "log"
 MODEL_DIR = "model"
 
-def show_params_num():
-    total_parameters = 0
-    for variable in tf.trainable_variables():
-        shape = variable.get_shape()
-        variable_parameters = 1
-        for dim in shape:
-            variable_parameters *= dim.value
-        total_parameters += variable_parameters
-    print(total_parameters)
+class Model:
 
-def train(dataset, epochs, iterations, batch_size):
-    val_iterations = 10
+    def show_params_num(self):
+        total_parameters = 0
+        for variable in tf.trainable_variables():
+            shape = variable.get_shape()
+            variable_parameters = 1
+            for dim in shape:
+                variable_parameters *= dim.value
+            total_parameters += variable_parameters
+        print(total_parameters)
 
-    x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
-    y = tf.placeholder(tf.float32, [None, 6])
-    training = tf.placeholder(tf.bool)
-    pred = get_graph(x, training)
+    def train(self, dataset, epochs, iterations, batch_size):
+        val_iterations = 10
 
-    loss = tf.reduce_mean(tf.square(y - pred))
+        x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
+        y = tf.placeholder(tf.float32, [None, 6])
+        training = tf.placeholder(tf.bool)
+        pred = get_graph(x, training)
 
-    training_summary = tf.summary.scalar("training_loss", loss)
-    validation_summary = tf.summary.scalar("validation_loss", loss)
+        loss = tf.reduce_mean(tf.square(y - pred))
 
-    optimizer = tf.train.AdamOptimizer(5e-4)
-    with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
-        opt = optimizer.minimize(loss)
+        training_summary = tf.summary.scalar("training_loss", loss)
+        validation_summary = tf.summary.scalar("validation_loss", loss)
 
-    saver = tf.train.Saver()
+        optimizer = tf.train.AdamOptimizer(5e-4)
+        with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
+            opt = optimizer.minimize(loss)
 
-    idx = 0
-    while(os.path.exists(os.path.join(LOG_DIR, "egomotion" +str(idx)))):
-        idx += 1
+        saver = tf.train.Saver()
 
-    writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion" + str(idx)))
-    writer.add_graph(tf.get_default_graph())
+        idx = 0
+        while(os.path.exists(os.path.join(LOG_DIR, "egomotion" +str(idx)))):
+            idx += 1
 
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
+        writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion" + str(idx)))
+        writer.add_graph(tf.get_default_graph())
 
-    show_params_num()
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
 
-    step = 0
-    val_step = 0
+        self.show_params_num()
 
-    with tf.Session(config=config) as sess:
-        sess.run(tf.global_variables_initializer())
-        for epoch in range(epochs):
+        step = 0
+        val_step = 0
 
-            for iter in range(iterations):
-                data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
-                _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
-                writer.add_summary(summary, step)
-                step+= 1
+        with tf.Session(config=config) as sess:
+            sess.run(tf.global_variables_initializer())
+            for epoch in range(epochs):
 
-            data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
+                for iter in range(iterations):
+                    data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
+                    _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
+                    writer.add_summary(summary, step)
+                    step+= 1
 
-            for iter in range(val_iterations):
-                _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
-                writer.add_summary(summary, val_step)
-                val_step += 1
+                data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
 
-            saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
+                for iter in range(val_iterations):
+                    _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
+                    writer.add_summary(summary, val_step)
+                    val_step += 1
 
-def load_model(model_name):
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
+                saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
 
-    sess = tf.Session(config = config)
+    def load_model(self, model_name):
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
 
-    x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
-    training = tf.placeholder(tf.bool)
+        sess = tf.Session(config = config)
 
-    pred = get_graph(x, training)
+        x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
+        training = tf.placeholder(tf.bool)
 
-    saver = tf.train.Saver()
-    saver.restore(sess, os.path.join(MODEL_DIR, model_name))
-    return sess,  pred, x, training
+        pred = get_graph(x, training)
 
-def predict(sess, pred, x, training, data):
-    prediction = sess.run(pred, feed_dict = {x : data, training : False})
-    return prediction
+        saver = tf.train.Saver()
+        saver.restore(sess, os.path.join(MODEL_DIR, model_name))
+        return sess,  pred, x, training
+
+    def predict(self, sess, pred, x, training, data):
+        prediction = sess.run(pred, feed_dict = {x : data, training : False})
+        return prediction

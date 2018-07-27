@@ -1,6 +1,6 @@
 import argparse
 from loader import Loader
-from model import train
+from model import Model
 
 EPOCHS = 100
 ITERATIONS = 100
@@ -14,7 +14,8 @@ if __name__ == '__main__':
     if args.mode == 'train':
         print("Training...")
         loader = Loader()
-        train(loader, EPOCHS, ITERATIONS, BATCH_SIZE)
+        model = Model()
+        model.train(loader, EPOCHS, ITERATIONS, BATCH_SIZE)
 
     if args.mode == 'test':
         print("Visalize...")
