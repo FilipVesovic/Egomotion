@@ -34,8 +34,9 @@ class Loader:
         shuffle(self.training_dataset)
 
         valid_split = int(len(self.training_dataset) * 0.8)
-        self.training_dataset = self.training_dataset[:valid_split]
-        self.validation_dataset = self.validation_dataset[valid_split:]
+        self.training = self.training_dataset
+        self.training_dataset = self.training[:valid_split]
+        self.validation_dataset = self.training[valid_split:]
 
         print("Training set size: ", len(self.training_dataset))
         print("Validation set size: ", len(self.validation_dataset))
