@@ -19,4 +19,4 @@ if __name__ == '__main__':
 
     if args.mode == 'test':
         print("Visalize...")
-        visualize()
+        visualize('model_00017.ckpt')
