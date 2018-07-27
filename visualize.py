@@ -2,14 +2,15 @@ import matplotlib.pyplot as plt
 import time
 import random
 import tensorflow as tf
-from model import Model, predict
+from model import Model
 from loader import TestLoader
 import numpy as np
 
 MAX_BATCH_SIZE = 16
 
 def visualize():
-    sess, pred, x, training = load_model('model_00011.ckpt')
+    model = Model()
+    sess, pred, x, training = model.load_model('model_00011.ckpt')
 
     rot_mat = np.eye(3)
     pos = np.zeros((3))
@@ -32,7 +33,6 @@ def visualize():
         return np.array([[np.cos(phi), -np.sin(phi), 0], [np.sin(phi), np.cos(phi), 0], [0, 0, 1]])
 
     data = TestLoader(5)
-    model = Model()
     dat = data.get_test(MAX_BATCH_SIZE)
     while dat is not None:
         vec = model.predict(sess, pred, x, training, np.expand_dims(dat,axis=0)) #dx dy dz alfa beta gama
