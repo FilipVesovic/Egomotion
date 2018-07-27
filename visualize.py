@@ -16,12 +16,15 @@ def visualize(model_name):
     pos = np.zeros((3))
     xdata = []
     ydata = []
+    xdatatrue = []
+    ydatatrue = []
     plt.show()
 
     axes = plt.gca()
     axes.set_xlim(-200, 200)
     axes.set_ylim(-200, 200)
     line, = axes.plot(xdata, ydata, 'r-')
+    blue_line, = axes.plot(xdata, ydata, 'b-')
 
     def R_x(phi):
         return np.array([[1, 0, 0], [0, np.cos(phi), -np.sin(phi)], [0, np.sin(phi), np.cos(phi)]])
@@ -35,6 +38,11 @@ def visualize(model_name):
     data = TestLoader(5)
     dat = data.get_test(MAX_BATCH_SIZE)
     truth = data.get_truth()
+#    for tru in truth:
+#        xdatatrue.append(pos[0])
+#        ydatatrue.append(pos[2])
+#        line2.set_xdata(xdatatrue)
+#        line2.set_ydata(ydatatrue)
     while dat is not None:
         vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
         for v in vec:
@@ -49,8 +57,6 @@ def visualize(model_name):
             line.set_xdata(xdata)
             line.set_ydata(ydata)
             plt.draw()
+            plt.show()
 
         dat = data.get_test(MAX_BATCH_SIZE)
-
-
-    plt.show()
