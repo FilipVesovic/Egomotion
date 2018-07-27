@@ -147,7 +147,7 @@ class Annotation:
         matrix1 = np.vstack([matrix1, [0,0,0,1]])
         matrix2 = np.vstack([matrix2, [0,0,0,1]])
 
-        rotation = np.matmul(np.lialg.inv(matrix2), matrix1)
+        rotation = np.matmul(np.linalg.inv(matrix2), matrix1)
 
         self.translation_mat = rotation[0:3,3]
         v = self.rotationMatrixToEulerAngles(rotation[:3,:3])
