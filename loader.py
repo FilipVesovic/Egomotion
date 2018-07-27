@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 from random import shuffle
 import math
+import matplotlib.pyplot as plt
+
 MATRIX_ROWS = 3
 MATRIX_COLUMNS = 4
 
