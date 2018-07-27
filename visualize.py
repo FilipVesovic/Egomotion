@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import time
 import random
 import tensorflow as tf
-from model import load_model,predict
+from model import Model, predict
 from loader import TestLoader
 import numpy as np
 
@@ -32,9 +32,10 @@ def visualize():
         return np.array([[np.cos(phi), -np.sin(phi), 0], [np.sin(phi), np.cos(phi), 0], [0, 0, 1]])
 
     data = TestLoader(5)
+    model = Model()
     dat = data.get_test(MAX_BATCH_SIZE)
     while dat is not None:
-        vec = predict(sess, pred, x, training, np.expand_dims(dat,axis=0)) #dx dy dz alfa beta gama
+        vec = model.predict(sess, pred, x, training, np.expand_dims(dat,axis=0)) #dx dy dz alfa beta gama
         for v in vec:
             d_transl = v[:3]
             d_rot_mat = np.matmul(np.matmul(R_z(v[5]), R_y(v[4])), R_x(v[3]))
