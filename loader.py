@@ -142,12 +142,17 @@ class Annotation:
     def __init__(self, sequence_id, frame_id, matrix1, matrix2):
         self.sequence_id = sequence_id
         self.frame_id = frame_id
+        matrix1 = np.concatenate([matrix1,[0,0,0,1]],axis=0)
+        matrix2 = np.concatenate([matrix2,[0,0,0,1]],axis=0)
 
-        self.translation_mat = np.matmul(np.linalg.inv(matrix1[:,:3]), matrix2[:, 3] - matrix1[:, 3])
+#posa1*inv pose0
+
+        rotation = np.matmul(matrix2,np.linalg.inv(matrix1))
+        self.translation_mat = rotation[0:3,3]
 
         #v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
 
-        v = self.rotationMatrixToEulerAngles(np.matmul(matrix2[:,:3],np.linalg.inv(matrix1[:,:3])))
+        v = self.rotationMatrixToEulerAngles(rotation)
 
         self.x = v[0]
         self.y = v[1]
