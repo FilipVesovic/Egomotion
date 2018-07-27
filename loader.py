@@ -33,7 +33,7 @@ class Loader:
 
         shuffle(self.training_dataset)
 
-        valid_split = len(int(len(self.training_dataset) * 0.8))
+        valid_split = int(len(self.training_dataset) * 0.8)
         self.training_dataset = self.training_dataset[:valid_split]
         self.validation_dataset = self.validation_dataset[valid_split:]
 
