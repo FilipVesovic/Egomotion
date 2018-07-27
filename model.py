@@ -26,6 +26,10 @@ def train(dataset, epochs, iterations, batch_size):
     pred = get_graph(x, training)
 
     loss = tf.reduce_mean(tf.square(y - pred))
+
+    training_summary = tf.summary.scalar("training_loss", loss)
+    validation_summary = tf.summary.scalar("validation_loss", loss)
+
     optimizer = tf.train.AdamOptimizer(5e-4)
     with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
         opt = optimizer.minimize(loss)
@@ -39,21 +43,26 @@ def train(dataset, epochs, iterations, batch_size):
 
     show_params_num()
 
+    step = 0
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
         for epoch in range(epochs):
 
             for iter in range(iterations):
                 data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
-                _, loss_value = sess.run([opt, loss], feed_dict = {x : data, y : labels, training : True})
+                _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
+                writer.add_summary(summary, step)
+                step+=1
 
             print("Loss value: {0}".format(loss_value))
             data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
 
-            _, val_loss_value = sess.run([pred, loss], feed_dict = {x : data, y : labels, training : False})
+            _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
+            writer.add_summary(summary, epoch)
+
             print("Validation Loss value: {0}".format(val_loss_value))
 
-            saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(iter//100)))
+            saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
 
 def predict(data):
     saver = tf.train.Saver()
