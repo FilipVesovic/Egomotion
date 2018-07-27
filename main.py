@@ -1,7 +1,7 @@
 import argparse
 from loader import Loader
 from model import Model
-
+from visualize import visualize
 EPOCHS = 100
 ITERATIONS = 100
 BATCH_SIZE = 32
@@ -19,3 +19,4 @@ if __name__ == '__main__':
 
     if args.mode == 'test':
         print("Visalize...")
+        visualize()
