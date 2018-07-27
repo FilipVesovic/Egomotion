@@ -91,7 +91,7 @@ class Annotation:
 
         self.x = v[0]
         self.y = v[1]
-
+        
 
     def get_matrix(self):
         return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y])
@@ -117,4 +117,4 @@ class Annotation:
         return np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)
 
     def print_anno(self):
-        print("#{0} #{1} {2}".format(self.sequence_id, self.frame_id, self.projection_matrix))
+        print("#{0} #{1} {2}".format(self.sequence_id, self.frame_id, self.get_matrix()))

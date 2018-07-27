@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 def get_graph(x, is_training):
-
+    #256x256x4
     conv1 = tf.layers.conv2d(inputs=x, filters=32, kernel_size=[3, 3], strides=1, padding='SAME', name='conv1')
     pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2, padding='VALID', name='pool1')
     relu1 = tf.nn.relu(pool1, name='relu1')
@@ -27,6 +27,6 @@ def get_graph(x, is_training):
     flat = tf.reshape(relu4, [-1, fc1_input_count], name='relu4_flat')
     fc1 = tf.layers.dense(inputs=flat, activation = tf.nn.relu , units= 128, name='fc1')
     fc2 = tf.layers.dense(inputs=fc1, activation = tf.nn.relu, units= 128, name='fc2')
-    fc3 = tf.layers.dense(inputs=fc2, activation = tf.nn.relu, units= 5, name='fc3')
+    fc3 = tf.layers.dense(inputs=fc2, units= 5, name='fc3')
 
     return fc3
