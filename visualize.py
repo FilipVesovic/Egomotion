@@ -38,11 +38,13 @@ def visualize(model_name):
     data = TestLoader(5)
     dat = data.get_test(MAX_BATCH_SIZE)
     truth = data.get_truth()
-#    for tru in truth:
-#        xdatatrue.append(pos[0])
-#        ydatatrue.append(pos[2])
-#        line2.set_xdata(xdatatrue)
-#        line2.set_ydata(ydatatrue)
+    for tru in truth:
+        rot = tru[:3,:3]
+        trans = true[:3,3]
+        xdatatrue.append(trans[0])
+        ydatatrue.append(trans[2])
+        line2.set_xdata(xdatatrue)
+        line2.set_ydata(ydatatrue)
     while dat is not None:
         vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
         for v in vec:
