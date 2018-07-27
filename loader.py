@@ -18,19 +18,38 @@ class Loader:
         labels_paths = os.listdir(LABELS_DIR)
         labels_paths = sorted(labels_paths)
 
-        self.training_datset = []
-        self.testing_dataset = []
+        self.training_dataset_anno = []
+        self.testing_dataset_anno = []
 
         for id in range(0, TRAINING_SEQS):
             path = os.path.join(LABELS_DIR, labels_paths[id])
-            self.training_datset += self.load(path, id)
+            self.training_dataset_anno += self.load(path, id)
 
         for id in range(TRAINING_SEQS, len(labels_paths)):
             path = os.path.join(LABELS_DIR, labels_paths[id])
-            self.testing_dataset += self.load(path, id)
+            self.testing_dataset_anno += self.load(path, id)
 
-        print("Training set size: ", len(self.training_datset))
-        print("Testing set size: ", len(self.testing_dataset))
+        print("Training set size: ", len(self.training_dataset_anno))
+        print("Testing set size: ", len(self.testing_dataset_anno))
+        self.training_inputs, self.training_labels = construct_dataset(self.training_dataset_anno)
+        self.testing_inputs, self.testing_labels = construct_dataset(self.testing_dataset_anno)
+
+
+    def construct_dataset(self, dataset_anno):
+        labels = None
+        inputs = None
+        for anno in dataset_anno:
+            if inputs is None:
+                inputs = np.expand_dims(anno.get_image(), axis=0)
+            else:
+                inputs = np.concatenate(inputs,  np.expand_dims(anno.get_image(), axis=0))
+
+            if labels is None:
+                labels = np.expand_dims(anno.get_matrix(), axis=0)
+            else:
+                labels = np.concatenate(labels,  np.expand_dims(anno.get_matrix(), axis=0))
+        return inputs, labels
+
 
     def load(self, path, sequence_id):
         with open(path, "r") as file:
@@ -55,19 +74,8 @@ class Loader:
         return dataset
 
     def get_batch(self, batch_size):
-        batch_ids = np.random.randint(0, len(self.training_datset), size = batch_size)
-        imgs = None
-        labels = None
-        for id in batch_ids:
-            if(imgs is None):
-                imgs = np.expand_dims(self.training_datset[id].get_image(), axis = 0)
-            else:
-                imgs = np.concatenate((imgs, np.expand_dims(self.training_datset[id].get_image(), axis = 0)),axis = 0)
-            if(labels is None):
-                labels = np.expand_dims(self.training_datset[id].get_matrix(), axis = 0)
-            else:
-                labels = np.concatenate((labels, np.expand_dims(self.training_datset[id].get_matrix(), axis = 0)),axis = 0)
-        return imgs, labels
+        batch_ids = np.random.randint(0, len(self.training_dataset_anno), size = batch_size)
+        return self.training_inputs[batch_ids], self.training_labels[batch_ids]
 
 class Annotation:
     def __init__(self, sequence_id, frame_id, matrix1, matrix2):
