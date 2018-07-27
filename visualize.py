@@ -57,6 +57,8 @@ def visualize(model_name):
             line.set_xdata(xdata)
             line.set_ydata(ydata)
             plt.draw()
-            plt.show()
+            plt.pause(1e-17)
+            time.sleep(0.01)
 
         dat = data.get_test(MAX_BATCH_SIZE)
+    plt.show()
