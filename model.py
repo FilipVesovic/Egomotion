@@ -10,14 +10,13 @@ LOG_DIR = "log"
 MODEL_DIR = "model"
 
 def train(dataset, iterations, batch_size):
-    writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion"))
-    writer.add_graph(tf.get_default_graph())
-
-    saver = tf.train.Saver()
-
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
     y = tf.placeholder(tf.float32, [None, 5])
     #loss = get_graph(x)
+
+    saver = tf.train.Saver()
+    writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion"))
+    writer.add_graph(tf.get_default_graph())
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
