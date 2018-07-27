@@ -50,7 +50,7 @@ def train(dataset, epochs, iterations, batch_size):
             print("Loss value: {0}".format(loss_value))
             data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
 
-            _, val_loss_value = sess.run([pred, loss], feed_dict = {x : data, training : False})
+            _, val_loss_value = sess.run([pred, loss], feed_dict = {x : data, y : labels, training : False})
             print("Validation Loss value: {0}".format(val_loss_value))
 
             saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(iter//100)))
