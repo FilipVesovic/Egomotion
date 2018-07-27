@@ -107,7 +107,7 @@ class TestLoader:
                 projection_matrix = np.reshape(numbers,(MATRIX_ROWS, MATRIX_COLUMNS))
 
                 if(last_matrix is not None):
-                    anno = Annotation(sequence_id, frame_id - 1, last_matrix, projection_matrix)
+                    anno = Annotation(self.sequence, frame_id - 1, last_matrix, projection_matrix)
                     dataset.append(anno)
                 last_matrix = projection_matrix
 
