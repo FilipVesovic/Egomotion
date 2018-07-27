@@ -12,7 +12,13 @@ MODEL_DIR = "model"
 def train(dataset, iterations, batch_size):
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
     y = tf.placeholder(tf.float32, [None, 5])
-    #loss = get_graph(x)
+    training = tf.placeholder(tf.bool)
+    pred = get_graph(x, training)
+
+    loss = tf.reduce_mean(tf.square(y - pred))
+    optimizer = tf.train.AdamOptimizer(5e-4)
+    with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
+        opt = optimizer.minimize(loss)
 
     saver = tf.train.Saver()
     writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion"))
@@ -23,21 +29,19 @@ def train(dataset, iterations, batch_size):
         for iter in range(iterations):
             data, labels = dataset.get_batch(batch_size)
 
-            #sess.run(loss, feed_dict = {x : data, y : labels})
-            print(data)
-            print(labels)
+            _, loss_value = sess.run([opt, loss], feed_dict = {x : data, y : labels, training : True})
+            print("Loss value: {0}", loss_value))
         saver.save(sess, os.path.join(MODEL_DIR, "model.ckpt"))
 
 def predict(data):
     saver = tf.train.Saver()
 
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
-    #loss = get_graph(x)
+    pred = get_graph(x, training)
 
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
         saver.restore(sess, os.path.join(MODEL_DIR, "model.ckpt"))
-        #sess.run(loss, feed_dict = {x : data})
-
+        prediction = sess.run(pred, feed_dict = {x : data, training : False})
+        print(pred)
 
 train(Loader(),10,32)

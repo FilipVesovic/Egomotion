@@ -106,4 +106,3 @@ class Annotation:
 
     def print_anno(self):
         print("#{0} #{1} {2}".format(self.sequence_id, self.frame_id, self.projection_matrix))
-3
