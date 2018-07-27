@@ -71,13 +71,15 @@ def load_model(model_name):
     sess = tf.Session()
 
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
+    training = tf.placeholder(tf.bool)
+
     pred = get_graph(x, training)
 
     saver = tf.train.Saver()
     saver.restore(sess, os.path.join(MODEL_DIR, model_name))
-    return sess
+    return sess,  pred, x, training
 
-def predict(sess, data):
+def predict(sess, pred, x, training, data):
     prediction = sess.run(pred, feed_dict = {x : data, training : False})
     return prediction
 
