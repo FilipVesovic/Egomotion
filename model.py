@@ -64,15 +64,18 @@ def train(dataset, epochs, iterations, batch_size):
 
             saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
 
-def predict(data):
-    saver = tf.train.Saver()
+def load_model():
+    sess = tf.Session()
 
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
     pred = get_graph(x, training)
 
-    with tf.Session() as sess:
-        saver.restore(sess, os.path.join(MODEL_DIR, "model.ckpt"))
-        prediction = sess.run(pred, feed_dict = {x : data, training : False})
-        print(pred)
+    saver = tf.train.Saver()
+    saver.restore(sess, os.path.join(MODEL_DIR, "model.ckpt"))
+    return sess
+
+def predict(sess, data):
+    prediction = sess.run(pred, feed_dict = {x : data, training : False})
+    return prediction
 
 train(Loader(),100, 100, 32)

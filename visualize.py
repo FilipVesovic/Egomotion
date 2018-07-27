@@ -1,6 +1,11 @@
 import matplotlib.pyplot as plt
 import time
 import random
+import tensorflow as tf
+import model
+
+sess = load_model()
+
 
 ysample = random.sample(xrange(-50, 50), 100)
 
@@ -15,6 +20,7 @@ axes.set_ylim(-50, +50)
 line, = axes.plot(xdata, ydata, 'r-')
 
 for i in range(100):
+    vec = predict(sess, data)
     xdata.append(i)
     ydata.append(ysample[i])
     line.set_xdata(xdata)
