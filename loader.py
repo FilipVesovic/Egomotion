@@ -133,7 +133,7 @@ class Annotation:
 
         #v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
 
-        v = rotationMatrixToEulerAngles(np.matmul(matrix2[:,:3],np.linalg.inv(matrix1[:,:3]))
+        v = rotationMatrixToEulerAngles(np.matmul(matrix2[:,:3],np.linalg.inv(matrix1[:,:3])))
 
         self.x = v[0]
         self.y = v[1]
