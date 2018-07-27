@@ -38,9 +38,21 @@ class Loader:
         self.training_dataset = self.training[:valid_split]
         self.validation_dataset = self.training[valid_split:]
 
+        self.visualize(self.training_dataset)
+
         print("Training set size: ", len(self.training_dataset))
         print("Validation set size: ", len(self.validation_dataset))
         print("Testing set size: ", len(self.testing_dataset))
+
+    def visualize(self, dataset):
+        plot_numbers=[[],[],[],[],[],[]]
+        for data in dataset:
+            for i in range(6):
+                plot_numbers[i].append(data[i])
+        for i in range(6):
+            plt.plot(plot_numbers[i])
+            plt.show()
+
 
     def load(self, path, sequence_id):
         with open(path, "r") as file:
@@ -140,7 +152,6 @@ class Annotation:
         self.z = v[2]
 
     def get_matrix(self):
-        print(np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y, self.z]))
         return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y, self.z])
 
     def get_image(self):
