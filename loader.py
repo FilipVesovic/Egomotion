@@ -29,6 +29,9 @@ class Loader:
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.testing_dataset += self.load(path, id)
 
+        print("Training set size: ", len(self.training_datset))
+        print("Testing set size: ", len(self.testing_dataset))
+
     def load(self, path, sequence_id):
         with open(path, "r") as file:
             dataset = []
@@ -81,7 +84,6 @@ class Annotation:
 
 
     def get_matrix(self):
-
         return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y])
 
     def get_image(self):
