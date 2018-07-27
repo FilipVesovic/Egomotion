@@ -24,7 +24,7 @@ def visualize(model_name):
     axes.set_xlim(-200, 200)
     axes.set_ylim(-200, 200)
     line, = axes.plot(xdata, ydata, 'r-')
-    blue_line, = axes.plot(xdata, ydata, 'b-')
+    line2, = axes.plot(xdata, ydata, 'b-')
 
     def R_x(phi):
         return np.array([[1, 0, 0], [0, np.cos(phi), -np.sin(phi)], [0, np.sin(phi), np.cos(phi)]])
