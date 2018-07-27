@@ -28,7 +28,12 @@ def R_y(phi):
 def R_z(phi):
     return np.array([[np.cos(phi), -np.sin(phi), 0], [np.sin(phi), np.cos(phi), 0], [0, 0, 1]])
 
+<<<<<<< HEAD
 data = get_test(0)
+=======
+def load_model():
+    sess = tf.Session()
+>>>>>>> parent of 8d1a04e... Add load test
 
 for dat in data:
     vec = predict(sess, pred, x, training,np.expand_dims( dat,axis=0)) #dx dy dz alfa beta gama
@@ -36,8 +41,14 @@ for dat in data:
     d_transl = vec[:3]
     d_rot_mat = np.matmul(np.matmul(R_z(vec[5]), R_y(vec[4])), R_x(vec[3]))
 
+<<<<<<< HEAD
     pos += np.matmul(d_transl, np.linalg.inv(rot_mat))
     rot_mat = np.matmul(rot_mat, d_rot_mat)
+=======
+    saver = tf.train.Saver()
+    saver.restore(sess, os.path.join(MODEL_DIR, "model.ckpt"))
+    return sess
+>>>>>>> parent of 8d1a04e... Add load test
 
     xdata.append(pos[0])
     ydata.append(pos[2])
