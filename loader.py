@@ -108,13 +108,32 @@ class Loader:
         return dataset
 
 class Annotation:
+    def rotationMatrixToEulerAngles(R):
+
+        sy = math.sqrt(R[0,0] * R[0,0] +  R[1,0] * R[1,0])
+
+        singular = sy < 1e-6
+
+        if  not singular :
+            x = math.atan2(R[2,1] , R[2,2])
+            y = math.atan2(-R[2,0], sy)
+            z = math.atan2(R[1,0], R[0,0])
+        else :
+            x = math.atan2(-R[1,2], R[1,1])
+            y = math.atan2(-R[2,0], sy)
+            z = 0
+
+        return np.array([x, y, z])
+
     def __init__(self, sequence_id, frame_id, matrix1, matrix2):
         self.sequence_id = sequence_id
         self.frame_id = frame_id
 
         self.translation_mat = np.matmul(np.linalg.inv(matrix1[:,:3]), matrix2[:, 3] - matrix1[:, 3])
 
-        v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
+        #v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
+
+        v = rotationMatrixToEulerAngles(np.matmul(matrix2[:,:3],np.linalg.inv(matrix1[:,:3]))
 
         self.x = v[0]
         self.y = v[1]
