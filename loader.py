@@ -85,34 +85,43 @@ class Loader:
                 labels = np.concatenate((labels, np.expand_dims(data[id].get_matrix(), axis = 0)),axis = 0)
         return imgs, labels
 
-def get_test(sequence):
-    frame_id = 0
-    dataset = None
-    while frame_id < 500 and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
-        camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id))
-        camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_1",  "{:06}.png".format(frame_id))
+class TestLoader:
+    def __init__(self, sequence):
+        self.next = 0
+        self.sequence = sequence
 
-        camera1_image = cv2.imread(camera1_path, 0)
-        camera2_image = cv2.imread(camera2_path, 0)
+    def get_test(self, batch_size):
+        low = self.next
+        high = self.next + batch_size
 
-        camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id + 1))
-        camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_1",  "{:06}.png".format(frame_id + 1))
+        frame_id = low
+        dataset = None
 
-        camera1_image_next = cv2.imread(camera1_path_next, 0)
-        camera2_image_next = cv2.imread(camera2_path_next, 0)
+        while frame_id < high and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
+            camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id))
+            camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_1",  "{:06}.png".format(frame_id))
 
-        camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
-        camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
-        camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
-        camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
+            camera1_image = cv2.imread(camera1_path, 0)
+            camera2_image = cv2.imread(camera2_path, 0)
 
-        frame = np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)
-        if dataset is None:
-            dataset = np.expand_dims(frame, axis = 0)
-        else:
-            dataset = np.concatenate((dataset, np.expand_dims(frame, axis = 0)))
-        frame_id += 1
-    return dataset
+            camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id + 1))
+            camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_1",  "{:06}.png".format(frame_id + 1))
+
+            camera1_image_next = cv2.imread(camera1_path_next, 0)
+            camera2_image_next = cv2.imread(camera2_path_next, 0)
+
+            camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
+            camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
+            camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
+            camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
+
+            frame = np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)
+            if dataset is None:
+                dataset = np.expand_dims(frame, axis = 0)
+            else:
+                dataset = np.concatenate((dataset, np.expand_dims(frame, axis = 0)))
+            frame_id += 1
+        return dataset
 
 class Annotation:
     def rotationMatrixToEulerAngles(self, R):
