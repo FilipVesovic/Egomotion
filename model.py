@@ -23,7 +23,7 @@ def train(dataset, epochs, iterations, batch_size):
     val_iterations = 10
 
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
-    y = tf.placeholder(tf.float32, [None, 5])
+    y = tf.placeholder(tf.float32, [None, 6])
     training = tf.placeholder(tf.bool)
     pred = get_graph(x, training)
 
