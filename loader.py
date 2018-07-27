@@ -71,19 +71,17 @@ class Annotation:
         self.sequence_id = sequence_id
         self.frame_id = frame_id
 
-        #self.projection_matrix = np.concatenate(np.matmul(matrix1[:,:3], matrix2[:,:3]), np.matmul(matrix1[:,:3], matrix2[:,3] - matrix1[:,3])
-        rotation_mat = np.concatenate(np.matmul(matrix1[:,:3], matrix2[:,:3]))
-        self.translation_mat = np.matmul(matrix1[:,:3], matrix2[:,3] - matrix1[:,3])
+        self.translation_mat = np.matmul(matrix2[:, 3] - matrix1[:, 3], np.linalg.inv(matrix1[:,:3]))
 
-        #Euler's angles
+        v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
+        v = v/np.linalg.norm(v)
 
-        self.phi_x = np.arctan2(rotation_mat[2][1], rotation_mat[2][2])
-        self.phi_y = np.arctan2(-rotation_mat[2][0], np.sqrt(rotation_mat[2][1]^2 + rotation_mat[2][2]^2))
-        self.phi_z = np.arctan2(rotation_mat[1][0], rotation_mat[0][0])
+        self.x = v[0]
+        self.y = v[1]
 
 
     def get_matrix(self):
-        return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.phi_x,self.phi_y,self.phi_z])
+        return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y])
 
     def get_image(self):
         camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id))
