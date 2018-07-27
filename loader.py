@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 from random import shuffle
-
+import math
 MATRIX_ROWS = 3
 MATRIX_COLUMNS = 4
 
@@ -79,22 +79,67 @@ class Loader:
                 labels = np.concatenate((labels, np.expand_dims(data[id].get_matrix(), axis = 0)),axis = 0)
         return imgs, labels
 
+    def get_test(self, sequence):
+        frame_id = 0
+        dataset = None
+        while os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
+            camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id))
+            camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_1",  "{:06}.png".format(frame_id))
+
+            camera1_image = cv2.imread(camera1_path, 0)
+            camera2_image = cv2.imread(camera2_path, 0)
+
+            camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id + 1))
+            camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_1",  "{:06}.png".format(frame_id + 1))
+
+            camera1_image_next = cv2.imread(camera1_path_next, 0)
+            camera2_image_next = cv2.imread(camera2_path_next, 0)
+
+            camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
+            camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
+            camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
+            camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
+
+            frame = np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)
+            if dataset is None:
+                dataset = np.expand_dims(frame, axis = 0)
+            else:
+                dataset = np.concatenate((dataset, np.expand_dims(frame, axis = 0)))
+        return dataset
+
 class Annotation:
+    def rotationMatrixToEulerAngles(self, R):
+        sy = math.sqrt(R[0,0] * R[0,0] +  R[1,0] * R[1,0])
+
+        singular = sy < 1e-6
+
+        if  not singular :
+            x = math.atan2(R[2,1] , R[2,2])
+            y = math.atan2(-R[2,0], sy)
+            z = math.atan2(R[1,0], R[0,0])
+        else :
+            x = math.atan2(-R[1,2], R[1,1])
+            y = math.atan2(-R[2,0], sy)
+            z = 0
+
+        return np.array([x, y, z])
+
     def __init__(self, sequence_id, frame_id, matrix1, matrix2):
         self.sequence_id = sequence_id
         self.frame_id = frame_id
 
         self.translation_mat = np.matmul(np.linalg.inv(matrix1[:,:3]), matrix2[:, 3] - matrix1[:, 3])
 
-        v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
-        v = v/np.linalg.norm(v)
+        #v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
+
+        v = self.rotationMatrixToEulerAngles(np.matmul(matrix2[:,:3],np.linalg.inv(matrix1[:,:3])))
 
         self.x = v[0]
         self.y = v[1]
-        
+        self.z = v[2]
 
     def get_matrix(self):
-        return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y])
+        return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y, self.z])
 
     def get_image(self):
         camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id))

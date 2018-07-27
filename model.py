@@ -20,8 +20,10 @@ def show_params_num():
     print(total_parameters)
 
 def train(dataset, epochs, iterations, batch_size):
+    val_iterations = 10
+
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
-    y = tf.placeholder(tf.float32, [None, 5])
+    y = tf.placeholder(tf.float32, [None, 6])
     training = tf.placeholder(tf.bool)
     pred = get_graph(x, training)
 
@@ -44,6 +46,8 @@ def train(dataset, epochs, iterations, batch_size):
     show_params_num()
 
     step = 0
+    val_step = 0
+
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
         for epoch in range(epochs):
@@ -52,15 +56,14 @@ def train(dataset, epochs, iterations, batch_size):
                 data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
                 _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
                 writer.add_summary(summary, step)
-                step+=1
+                step+= 1
 
-            print("Loss value: {0}".format(loss_value))
             data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
 
-            _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
-            writer.add_summary(summary, epoch)
-
-            print("Validation Loss value: {0}".format(val_loss_value))
+            for iter in range(val_iterations):
+                _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
+                writer.add_summary(summary, val_step)
+                val_step += 1
 
             saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
 

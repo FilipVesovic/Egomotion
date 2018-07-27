@@ -25,8 +25,8 @@ def get_graph(x, is_training):
 
     fc1_input_count = int(bn4.shape[1] * bn4.shape[2] * bn4.shape[3])
     flat = tf.reshape(bn4, [-1, fc1_input_count], name='relu4_flat')
-    fc1 = tf.layers.dense(inputs=flat, activation = tf.nn.relu , units= 128, name='fc1')
-    fc2 = tf.layers.dense(inputs=fc1, activation = tf.nn.relu, units= 128, name='fc2')
-    fc3 = tf.layers.dense(inputs=fc2, units= 5, name='fc3')
+    fc1 = tf.layers.dense(inputs=flat, activation = tf.nn.relu , units = 128, name='fc1')
+    fc2 = tf.layers.dense(inputs=fc1, activation = tf.nn.relu, units = 128, name='fc2')
+    fc3 = tf.layers.dense(inputs=fc2, units = 6, name='fc3')
 
     return fc3
