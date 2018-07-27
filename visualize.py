@@ -21,8 +21,8 @@ def visualize(model_name):
     plt.show()
 
     axes = plt.gca()
-    axes.set_xlim(-200, 200)
-    axes.set_ylim(-200, 200)
+    axes.set_xlim(-300, 300)
+    axes.set_ylim(-300, 300)
     line, = axes.plot(xdata, ydata, 'r-')
     line2, = axes.plot(xdata, ydata, 'b-')
 
@@ -35,7 +35,7 @@ def visualize(model_name):
     def R_z(phi):
         return np.array([[np.cos(phi), -np.sin(phi), 0], [np.sin(phi), np.cos(phi), 0], [0, 0, 1]])
 
-    data = TestLoader(5)
+    data = TestLoader(0)
     dat = data.get_test(MAX_BATCH_SIZE)
     truth = data.get_truth()
     for tru in truth:
@@ -44,17 +44,21 @@ def visualize(model_name):
         ydatatrue.append(trans[2])
         line2.set_xdata(xdatatrue)
         line2.set_ydata(ydatatrue)
+    last = np.eye(4)
     while dat is not None:
         vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
         for v in vec:
             d_transl = v[:3]
             d_rot_mat = np.matmul(np.matmul(R_z(v[5]), R_y(v[4])), R_x(v[3]))
+            d_transl = np.expand_dims(d_transl, axis=1)
+            mat = np.hstack([d_rot_mat,d_transl])
+            mat = np.vstack([mat,[0,0,0,1]])
 
-            pos += np.matmul(d_transl, np.linalg.inv(rot_mat))
-            rot_mat = np.matmul(rot_mat, d_rot_mat)
+            next = np.matmul(last, np.linalg.inv(mat))
+            last = next
 
-            xdata.append(pos[0])
-            ydata.append(pos[2])
+            xdata.append(next[0,3])
+            ydata.append(next[2,3])
             line.set_xdata(xdata)
             line.set_ydata(ydata)
             plt.draw()
