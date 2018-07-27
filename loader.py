@@ -48,7 +48,7 @@ class Loader:
         plot_numbers=[[],[],[],[],[],[]]
         for data in dataset:
             for i in range(6):
-                plot_numbers[i].append(data[i])
+                plot_numbers[i].append(data.get_matrix()[i])
         for i in range(6):
             plt.plot(plot_numbers[i])
             plt.show()
