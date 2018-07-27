@@ -64,19 +64,19 @@ class Loader:
 
         return dataset
 
-    def get_batch(self, batch_size):
-        batch_ids = np.random.randint(0, len(self.training_dataset), size = batch_size)
+    def get_batch(self, data, batch_size):
+        batch_ids = np.random.randint(0, len(data), size = batch_size)
         imgs = None
         labels = None
         for id in batch_ids:
             if(imgs is None):
-                imgs = np.expand_dims(self.training_dataset[id].get_image(), axis = 0)
+                imgs = np.expand_dims(data[id].get_image(), axis = 0)
             else:
-                imgs = np.concatenate((imgs, np.expand_dims(self.training_dataset[id].get_image(), axis = 0)),axis = 0)
+                imgs = np.concatenate((imgs, np.expand_dims(data[id].get_image(), axis = 0)),axis = 0)
             if(labels is None):
-                labels = np.expand_dims(self.training_dataset[id].get_matrix(), axis = 0)
+                labels = np.expand_dims(data[id].get_matrix(), axis = 0)
             else:
-                labels = np.concatenate((labels, np.expand_dims(self.training_dataset[id].get_matrix(), axis = 0)),axis = 0)
+                labels = np.concatenate((labels, np.expand_dims(data[id].get_matrix(), axis = 0)),axis = 0)
         return imgs, labels
 
 class Annotation:

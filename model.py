@@ -19,7 +19,7 @@ def show_params_num():
         total_parameters += variable_parameters
     print(total_parameters)
 
-def train(dataset, iterations, batch_size):
+def train(dataset, epochs, iterations, batch_size):
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
     y = tf.placeholder(tf.float32, [None, 5])
     training = tf.placeholder(tf.bool)
@@ -41,13 +41,19 @@ def train(dataset, iterations, batch_size):
 
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
-        for iter in range(iterations):
-            data, labels = dataset.get_batch(batch_size)
+        for epoch in range(epochs):
 
-            _, loss_value = sess.run([opt, loss], feed_dict = {x : data, y : labels, training : True})
-            if iter % 100 == 0:
-                print("Loss value: {0}".format(loss_value))
-                saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(iter//100)))
+            for iter in range(iterations):
+                data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
+                _, loss_value = sess.run([opt, loss], feed_dict = {x : data, y : labels, training : True})
+
+            print("Loss value: {0}".format(loss_value))
+            data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
+
+            _, val_loss_value = sess.run([pred, loss], feed_dict = {x : data, training : False})
+            print("Validation Loss value: {0}".format(val_loss_value))
+
+            saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(iter//100)))
 
 def predict(data):
     saver = tf.train.Saver()
@@ -60,4 +66,4 @@ def predict(data):
         prediction = sess.run(pred, feed_dict = {x : data, training : False})
         print(pred)
 
-train(Loader(),10000,32)
+train(Loader(),100, 100, 32)
