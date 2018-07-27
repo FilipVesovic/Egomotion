@@ -27,10 +27,10 @@ def R_y(phi):
 def R_z(phi):
     return np.matrix([np.cos(phi), -np.sin(phi), 0], [np.sin(phi), np.cos(phi), 0], [0, 0, 1])
 
+data = get_test(10)
 
-
-for i in range(100):
-    vec = predict(sess, data) #dx dy dz alfa beta gama
+for dat in data:
+    vec = predict(sess, dat) #dx dy dz alfa beta gama
 
     d_transl = vec[:3]
     d_rot_mat = np.matmul(np.matmul(R_z(vec[5]), R_y(vec[4])), R_x(vec[3]))
