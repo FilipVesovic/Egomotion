@@ -9,6 +9,17 @@ HEIGHT = 256
 LOG_DIR = "log"
 MODEL_DIR = "model"
 
+def show_params_num():
+    total_parameters = 0
+    for variable in tf.trainable_variables():
+        shape = variable.get_shape()
+        variable_parameters = 1
+        for dim in shape:
+            print(dim)
+            variable_parameters *= dim.value
+        total_parameters += variable_parameters
+    print(total_parameters)
+
 def train(dataset, iterations, batch_size):
     x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
     y = tf.placeholder(tf.float32, [None, 5])
@@ -26,6 +37,8 @@ def train(dataset, iterations, batch_size):
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
+
+    show_params_num()
 
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
