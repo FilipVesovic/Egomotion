@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+from random import shuffle
 
 MATRIX_ROWS = 3
 MATRIX_COLUMNS = 4
@@ -18,38 +19,28 @@ class Loader:
         labels_paths = os.listdir(LABELS_DIR)
         labels_paths = sorted(labels_paths)
 
-        self.training_dataset_anno = []
-        self.testing_dataset_anno = []
+        self.training_dataset = []
+        self.validation_dataset = []
+        self.testing_dataset = []
 
         for id in range(0, TRAINING_SEQS):
             path = os.path.join(LABELS_DIR, labels_paths[id])
-            self.training_dataset_anno += self.load(path, id)
+            self.training_dataset += self.load(path, id)
 
         for id in range(TRAINING_SEQS, len(labels_paths)):
             path = os.path.join(LABELS_DIR, labels_paths[id])
-            self.testing_dataset_anno += self.load(path, id)
+            self.testing_dataset += self.load(path, id)
 
-        print("Training set size: ", len(self.training_dataset_anno))
-        print("Testing set size: ", len(self.testing_dataset_anno))
-        self.training_inputs, self.training_labels = construct_dataset(self.training_dataset_anno)
-        self.testing_inputs, self.testing_labels = construct_dataset(self.testing_dataset_anno)
+        shuffle(self.training_dataset)
 
+        valid_split = int(len(self.training_dataset) * 0.8)
+        self.training = self.training_dataset
+        self.training_dataset = self.training[:valid_split]
+        self.validation_dataset = self.training[valid_split:]
 
-    def construct_dataset(self, dataset_anno):
-        labels = None
-        inputs = None
-        for anno in dataset_anno:
-            if inputs is None:
-                inputs = np.expand_dims(anno.get_image(), axis=0)
-            else:
-                inputs = np.concatenate(inputs,  np.expand_dims(anno.get_image(), axis=0))
-
-            if labels is None:
-                labels = np.expand_dims(anno.get_matrix(), axis=0)
-            else:
-                labels = np.concatenate(labels,  np.expand_dims(anno.get_matrix(), axis=0))
-        return inputs, labels
-
+        print("Training set size: ", len(self.training_dataset))
+        print("Validation set size: ", len(self.validation_dataset))
+        print("Testing set size: ", len(self.testing_dataset))
 
     def load(self, path, sequence_id):
         with open(path, "r") as file:
@@ -73,9 +64,20 @@ class Loader:
 
         return dataset
 
-    def get_batch(self, batch_size):
-        batch_ids = np.random.randint(0, len(self.training_dataset_anno), size = batch_size)
-        return self.training_inputs[batch_ids], self.training_labels[batch_ids]
+    def get_batch(self, data, batch_size):
+        batch_ids = np.random.randint(0, len(data), size = batch_size)
+        imgs = None
+        labels = None
+        for id in batch_ids:
+            if(imgs is None):
+                imgs = np.expand_dims(data[id].get_image(), axis = 0)
+            else:
+                imgs = np.concatenate((imgs, np.expand_dims(data[id].get_image(), axis = 0)),axis = 0)
+            if(labels is None):
+                labels = np.expand_dims(data[id].get_matrix(), axis = 0)
+            else:
+                labels = np.concatenate((labels, np.expand_dims(data[id].get_matrix(), axis = 0)),axis = 0)
+        return imgs, labels
 
 class Annotation:
     def __init__(self, sequence_id, frame_id, matrix1, matrix2):
