@@ -2,8 +2,8 @@ import os
 import cv2
 import numpy as np
 
-MATRIX_ROWS = 4
-MATRIX_COLUMNS = 3
+MATRIX_ROWS = 3
+MATRIX_COLUMNS = 4
 
 LABELS_DIR = os.path.join("dataset", "poses")
 DATASET_DIR = os.path.join("dataset", "sequences")
@@ -71,7 +71,7 @@ class Annotation:
         self.sequence_id = sequence_id
         self.frame_id = frame_id
 
-        self.translation_mat = np.matmul(matrix2[:, 3] - matrix1[:, 3], np.linalg.inv(matrix1[:,:3]))
+        self.translation_mat = np.matmul(np.linalg.inv(matrix1[:,:3]), matrix2[:, 3] - matrix1[:, 3])
 
         v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
         v = v/np.linalg.norm(v)
@@ -81,6 +81,7 @@ class Annotation:
 
 
     def get_matrix(self):
+
         return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y])
 
     def get_image(self):
@@ -101,8 +102,7 @@ class Annotation:
         camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
         camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
-        return np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2) 
+        return np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)
 
     def print_anno(self):
         print("#{0} #{1} {2}".format(self.sequence_id, self.frame_id, self.projection_matrix))
-3
