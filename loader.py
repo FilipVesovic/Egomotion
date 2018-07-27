@@ -60,6 +60,7 @@ class Loader:
                     numbers[i] = float(numbers_text[i])
 
                 projection_matrix = np.reshape(numbers,(MATRIX_ROWS, MATRIX_COLUMNS))
+
                 if(last_matrix is not None):
                     anno = Annotation(sequence_id, frame_id - 1, last_matrix, projection_matrix)
                     dataset.append(anno)

@@ -6,7 +6,6 @@ from model import load_model,predict
 from loader import get_test
 import numpy as np
 sess, pred, x, training = load_model('model_00011.ckpt')
-ysample = random.sample(range(-50, 50), 100)
 
 rot_mat = np.eye(3)
 pos = np.zeros((3))
