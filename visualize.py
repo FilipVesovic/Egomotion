@@ -5,7 +5,7 @@ import tensorflow as tf
 from model import load_model,predict
 from loader import get_test
 import numpy as np
-sess, pred, x, training = load_model('model_00037.ckpt')
+sess, pred, x, training = load_model('model_00011.ckpt')
 ysample = random.sample(range(-50, 50), 100)
 
 rot_mat = np.eye(3)
@@ -28,7 +28,7 @@ def R_y(phi):
 def R_z(phi):
     return np.array([[np.cos(phi), -np.sin(phi), 0], [np.sin(phi), np.cos(phi), 0], [0, 0, 1]])
 
-data = get_test(10)
+data = get_test(5)
 for dat in data:
     vec = predict(sess, pred, x, training, np.expand_dims(dat,axis=0)) #dx dy dz alfa beta gama
     vec = vec[0]

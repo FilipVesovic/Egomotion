@@ -33,14 +33,14 @@ class Loader:
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.testing_dataset += self.load(path, id)
 
-        shuffle(self.training_dataset)
+#        shuffle(self.training_dataset)
 
         valid_split = int(len(self.training_dataset) * 0.8)
         self.training = self.training_dataset
         self.training_dataset = self.training[:valid_split]
         self.validation_dataset = self.training[valid_split:]
 
-        self.visualize(self.training_dataset)
+        self.visualize(self.training_dataset[:2000])
 
         print("Training set size: ", len(self.training_dataset))
         print("Validation set size: ", len(self.validation_dataset))
@@ -67,8 +67,9 @@ class Loader:
                 numbers = np.zeros(len(numbers_text))
                 for i in range(len(numbers_text)):
                     numbers[i] = float(numbers_text[i])
-
+            #    print(line)
                 projection_matrix = np.reshape(numbers,(MATRIX_ROWS, MATRIX_COLUMNS))
+            #    print(projection_matrix)
                 if(last_matrix is not None):
                     anno = Annotation(sequence_id, frame_id - 1, last_matrix, projection_matrix)
                     dataset.append(anno)
@@ -96,7 +97,7 @@ class Loader:
 def get_test(sequence):
     frame_id = 0
     dataset = None
-    while frame_id < 200 and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
+    while frame_id < 500 and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
         camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_0",  "{:06}.png".format(frame_id))
         camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(sequence), "image_1",  "{:06}.png".format(frame_id))
 
@@ -142,24 +143,28 @@ class Annotation:
     def __init__(self, sequence_id, frame_id, matrix1, matrix2):
         self.sequence_id = sequence_id
         self.frame_id = frame_id
-        matrix1 = np.concatenate([matrix1,[0,0,0,1]],axis=0)
-        matrix2 = np.concatenate([matrix2,[0,0,0,1]],axis=0)
 
-#posa1*inv pose0
-
-        rotation = np.matmul(matrix2,np.linalg.inv(matrix1))
+        matrix1 = np.vstack([matrix1, [0,0,0,1]])
+        matrix2 = np.vstack([matrix2, [0,0,0,1]])
+    #    print(matrix1)
+    #print(matrix2)
+        #posa1*inv pose0
+        rotation = np.matmul(np.linalg.inv(matrix2),matrix1)
+        #rotation = np.matmul(matrix2,np.linalg.inv(matrix1))
+        #rotation = np.matmul(np.linalg.inv(matrix1),matrix2)
+    #    print(rotation)
         self.translation_mat = rotation[0:3,3]
-
+    #    print(self.translation_mat)
         #v = np.matmul(np.matmul(np.array([0, 0, 1]), matrix2[:,:3]), np.linalg.inv(matrix1[:,:3]))
 
-        v = self.rotationMatrixToEulerAngles(rotation)
+        v = self.rotationMatrixToEulerAngles(rotation[:3,:3])
 
         self.x = v[0]
         self.y = v[1]
         self.z = v[2]
 
     def get_matrix(self):
-        return np.array([self.translation_mat[0],self.translation_mat[1],self.translation_mat[2],self.x, self.y, self.z])
+        return np.array([self.translation_mat[0], self.translation_mat[1], self.translation_mat[2], self.x, self.y, self.z])
 
     def get_image(self):
         camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id))

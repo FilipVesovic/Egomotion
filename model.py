@@ -37,7 +37,12 @@ def train(dataset, epochs, iterations, batch_size):
         opt = optimizer.minimize(loss)
 
     saver = tf.train.Saver()
-    writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion"))
+
+    idx = 0
+    while(os.path.exists(os.path.join(LOG_DIR, "egomotion" +str(idx)))):
+        idx += 1
+
+    writer = tf.summary.FileWriter(os.path.join(LOG_DIR, "egomotion" + str(idx)))
     writer.add_graph(tf.get_default_graph())
 
     config = tf.ConfigProto()
