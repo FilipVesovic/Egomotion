@@ -108,7 +108,7 @@ class Loader:
         return dataset
 
 class Annotation:
-    def rotationMatrixToEulerAngles(R):
+    def rotationMatrixToEulerAngles(self,R):
 
         sy = math.sqrt(R[0,0] * R[0,0] +  R[1,0] * R[1,0])
 
