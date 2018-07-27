@@ -105,19 +105,11 @@ class TestLoader:
                     numbers[i] = float(numbers_text[i])
 
                 projection_matrix = np.reshape(numbers,(MATRIX_ROWS, MATRIX_COLUMNS))
-
-                if(last_matrix is not None):
-                    anno = Annotation(self.sequence, frame_id - 1, last_matrix, projection_matrix)
-                    dataset.append(anno)
-                last_matrix = projection_matrix
+                dataset.append(projection_matrix)
 
                 frame_id += 1
 
-        ret = []
-        for dat in dataset:
-            ret.append(dat.get_matrix())
-
-        return ret
+        return dataset
 
     def get_test(self, batch_size):
         low = self.next
