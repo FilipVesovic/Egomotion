@@ -56,7 +56,7 @@ def train(dataset, epochs, iterations, batch_size):
                 data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
                 _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
                 writer.add_summary(summary, step)
-                step+ = 1
+                step+= 1
 
             data, labels = dataset.get_batch(dataset.testing_dataset, batch_size)
 
