@@ -31,9 +31,9 @@ class Loader:
 
         print("Training set size: ", len(self.training_dataset_anno))
         print("Testing set size: ", len(self.testing_dataset_anno))
-        self.training_inputs, self.training_labels = construct_dataset(self.training_dataset_anno)
-        self.testing_inputs, self.testing_labels = construct_dataset(self.testing_dataset_anno)
-
+        self.training_inputs, self.training_labels = self.construct_dataset(self.training_dataset_anno)
+        self.testing_inputs, self.testing_labels = self.construct_dataset(self.testing_dataset_anno)
+        self.reset()
 
     def construct_dataset(self, dataset_anno):
         labels = None
@@ -42,14 +42,19 @@ class Loader:
             if inputs is None:
                 inputs = np.expand_dims(anno.get_image(), axis=0)
             else:
-                inputs = np.concatenate(inputs,  np.expand_dims(anno.get_image(), axis=0))
+                inputs = np.concatenate((inputs,  np.expand_dims(anno.get_image()), axis=0))
 
             if labels is None:
                 labels = np.expand_dims(anno.get_matrix(), axis=0)
             else:
-                labels = np.concatenate(labels,  np.expand_dims(anno.get_matrix(), axis=0))
+                labels = np.concatenate((labels,  np.expand_dims(anno.get_matrix()), axis=0))
         return inputs, labels
 
+    def reset(self):
+        self.next = 0
+        p = numpy.random.permutation(self.training_inputs.shape[0])
+        self.training_inputs = self.training_inputs[p]
+        self.training_labels = self.training_labels[p]
 
     def load(self, path, sequence_id):
         with open(path, "r") as file:
@@ -74,8 +79,12 @@ class Loader:
         return dataset
 
     def get_batch(self, batch_size):
-        batch_ids = np.random.randint(0, len(self.training_dataset_anno), size = batch_size)
-        return self.training_inputs[batch_ids], self.training_labels[batch_ids]
+        if(self.next + batch_size >= self.training_inputs.shape[0]):
+            self.reset()
+        low = self.next
+        high = self.next+batch_size
+        self.next+=batch_size
+        return self.training_inputs[low:high], self.training_labels[low:high]
 
 class Annotation:
     def __init__(self, sequence_id, frame_id, matrix1, matrix2):
