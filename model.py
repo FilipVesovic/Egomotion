@@ -25,9 +25,9 @@ class Model:
     def train(self, dataset, epochs, iterations, batch_size):
         val_iterations = 10
 
-        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4])
+        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4], name = "x")
         y = tf.placeholder(tf.float32, [None, 6])
-        training = tf.placeholder(tf.bool)
+        training = tf.placeholder(tf.bool, name = "training")
         pred = get_graph(x, training)
 
         #batch_size x 6
@@ -77,18 +77,24 @@ class Model:
             saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
         return sess,  pred, x, training
     def load_model(self, model_name):
+
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
 
+        saver = tf.train.Saver()
         sess = tf.Session(config = config)
 
-        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4])
-        training = tf.placeholder(tf.bool)
-
-        pred = get_graph(x, training)
-
-        saver = tf.train.Saver()
         saver.restore(sess, os.path.join(MODEL_DIR, model_name))
+        graph = tf.get_default_graph()
+
+#        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4])
+#        training = tf.placeholder(tf.bool)
+
+#        pred = get_graph(x, training)
+
+        pred = graph.get_tensor_by_name("pred:0")
+        x = graph.get_tensor_by_name("x:0")
+        training = graph.get_tensor_by_name("training:0")
         return sess,  pred, x, training
 
     def predict(self, sess, pred, x, training, data):
