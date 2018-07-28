@@ -74,6 +74,10 @@ def visualize(model, sess, pred, x, training):
             mat = np.hstack([d_rot_mat,d_transl])
             mat = np.vstack([mat,[0,0,0,1]])
 
+            # delta = M2^-1 M1
+            # delta M1^-1 = M2^-1
+            # M1  delta^-1= M2
+
             next = np.matmul(last, np.linalg.inv(mat))
             last = next
 
