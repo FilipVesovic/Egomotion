@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-EPS = 0.001
+EPS = 0.0001
 
 def get_graph(x, is_training):
     conv1 = tf.layers.conv2d(inputs=x, filters=32, kernel_size=[7, 7], strides=1, padding='SAME', name='conv1',kernel_initializer=tf.contrib.layers.xavier_initializer(), kernel_regularizer = tf.contrib.layers.l2_regularizer(scope = EPS) )
