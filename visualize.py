@@ -32,8 +32,6 @@ def visualize(model_name):
     model = Model()
     sess, pred, x, training = model.load_model(model_name)
 
-    rot_mat = np.eye(3)
-    pos = np.zeros((3))
     xdata = []
     ydata = []
     xdatatrue = []
@@ -71,10 +69,8 @@ def visualize(model_name):
             next = np.matmul(last, np.linalg.inv(mat))
             last = next
 
-            abc = next
-
-            xdata.append(abc[0,3])
-            ydata.append(abc[2,3])
+            xdata.append(next[0,3])
+            ydata.append(next[2,3])
             line.set_xdata(xdata)
             line.set_ydata(ydata)
             plt.draw()
@@ -83,3 +79,4 @@ def visualize(model_name):
 
         dat = data.get_test(MAX_BATCH_SIZE)
     plt.show()
+
