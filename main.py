@@ -2,9 +2,13 @@ import argparse
 from loader import Loader
 from model import Model
 from visualize import visualize
+import numpy as np
+
 EPOCHS = 5
 ITERATIONS = 100
 BATCH_SIZE = 8
+
+np.random.seed(0)
 
 if __name__ == '__main__':
 

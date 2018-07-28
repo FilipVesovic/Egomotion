@@ -92,7 +92,7 @@ class Model:
 
 #        pred = get_graph(x, training)
 
-        pred = graph.get_tensor_by_name("pred:0")
+        pred = graph.get_tensor_by_name("pred/BiasAdd:0")
         x = graph.get_tensor_by_name("x:0")
         training = graph.get_tensor_by_name("training:0")
         return sess,  pred, x, training
