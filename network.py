@@ -30,6 +30,6 @@ def get_graph(x, is_training):
 #    bn5 = tf.layers.batch_normalization(fc1, training=is_training, name='bn5')
     fc2 = tf.layers.dense(inputs=fc1, activation = tf.nn.relu, units = 128, name='fc2',kernel_initializer=tf.contrib.layers.xavier_initializer())
 #    bn6 = tf.layers.batch_normalization(fc2, training=is_training, name='bn6')
-    fc3 = tf.layers.dense(inputs=fc2, units = 6, name='fc3',kernel_initializer=tf.contrib.layers.xavier_initializer(), name = "pred")
+    fc3 = tf.layers.dense(inputs=fc2, units = 6,kernel_initializer=tf.contrib.layers.xavier_initializer(), name = "pred")
 
     return fc3
