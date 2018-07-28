@@ -13,8 +13,9 @@ DATASET_DIR = os.path.join("dataset", "sequences")
 
 TRAINING_SEQS = 11
 
-WIDTH = 512
-HEIGHT = 512
+WIDTH = int(1241/1.5)
+HEIGHT = int(376/1.5)
+
 
 class Loader:
     def __init__(self):
@@ -25,12 +26,17 @@ class Loader:
         self.validation_dataset = []
 
 
-#need shuffle
+
         for id in range(0, TRAINING_SEQS):
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.training_dataset += self.load(path, id)
 
-        self.training_dataset = self.training_dataset[:50]
+        shuffle(self.training_dataset)
+
+        self.training_dataset = self.training_dataset[:350]
+
+        #for i in range(50):
+        #    print(self.training_dataset[i].get_matrix())
 
         valid_split = int(len(self.training_dataset) * 0.8)
         self.training = self.training_dataset
@@ -38,7 +44,7 @@ class Loader:
         self.validation_dataset = self.training[valid_split:]
 
 
-    #    self.visualize(self.training_dataset[:500])
+        #self.visualize(self.training_dataset[:500])
 
         print("Training set size: ", len(self.training_dataset))
         print("Validation set size: ", len(self.validation_dataset))
@@ -119,7 +125,7 @@ class TestLoader:
     def get_test(self, batch_size):
         low = self.next
         high = self.next + batch_size
-        print(low,high)
+        #print(low,high)
         frame_id = low
         dataset = None
 
@@ -139,6 +145,8 @@ class TestLoader:
             camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
             camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
             camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
+
+
 
             frame = np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)/255
 
@@ -207,6 +215,9 @@ class Annotation:
         camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
         camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
+#        cv2.imshow('image',camera1_image)
+#        cv2.waitKey(0)
+#        cv2.destroyAllWindows()
         return np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)/255
 
     def print_anno(self):

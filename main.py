@@ -4,7 +4,7 @@ from model import Model
 from visualize import visualize
 EPOCHS = 100
 ITERATIONS = 100
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 
 if __name__ == '__main__':
 
@@ -19,4 +19,4 @@ if __name__ == '__main__':
 
     if args.mode == 'test':
         print("Visalize...")
-        visualize('model_00002.ckpt')
+        visualize('model_00005.ckpt')

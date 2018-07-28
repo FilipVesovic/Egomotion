@@ -4,8 +4,8 @@ import tensorflow as tf
 from network import get_graph
 from loader import Loader
 
-WIDTH = 512
-HEIGHT = 512
+WIDTH = int(1241/1.5)
+HEIGHT = int(376/1.5)
 
 LOG_DIR = "log"
 MODEL_DIR = "model"
@@ -25,7 +25,7 @@ class Model:
     def train(self, dataset, epochs, iterations, batch_size):
         val_iterations = 10
 
-        x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
+        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4])
         y = tf.placeholder(tf.float32, [None, 6])
         training = tf.placeholder(tf.bool)
         pred = get_graph(x, training)
@@ -36,11 +36,11 @@ class Model:
         training_summary = tf.summary.scalar("training_loss", loss)
         validation_summary = tf.summary.scalar("validation_loss", loss)
 
-        optimizer = tf.train.AdamOptimizer()
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
         with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
             opt = optimizer.minimize(loss)
 
-        saver = tf.train.Saver(max_to_keep=10000)
+        saver = tf.train.Saver(tf.global_variables(), max_to_keep=10000)
 
         idx = 0
         while(os.path.exists(os.path.join(LOG_DIR, "egomotion" +str(idx)))):
@@ -83,12 +83,12 @@ class Model:
 
         sess = tf.Session(config = config)
 
-        x = tf.placeholder(tf.float32, [None, WIDTH, HEIGHT, 4])
+        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4])
         training = tf.placeholder(tf.bool)
 
         pred = get_graph(x, training)
 
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(tf.global_variables())
         saver.restore(sess, os.path.join(MODEL_DIR, model_name))
         return sess,  pred, x, training
 
