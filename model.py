@@ -57,26 +57,25 @@ class Model:
         step = 0
         val_step = 0
 
-        with tf.Session(config=config) as sess:
-            sess.run(tf.global_variables_initializer())
-            for epoch in range(epochs):
+        sess = tf.Session(config=config)
+        sess.run(tf.global_variables_initializer())
+        for epoch in range(epochs):
 
-                for iter in range(iterations):
+            for iter in range(iterations):
+                data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
+                _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
+                writer.add_summary(summary, step)
+                step+= 1
 
-                    data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
-                    _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
-                    writer.add_summary(summary, step)
-                    step+= 1
 
+            for iter in range(val_iterations):
+                data, labels = dataset.get_batch(dataset.validation_dataset, batch_size)
+                _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
+                writer.add_summary(summary, val_step)
+                val_step += 1
 
-                for iter in range(val_iterations):
-                    data, labels = dataset.get_batch(dataset.validation_dataset, batch_size)
-                    _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
-                    writer.add_summary(summary, val_step)
-                    val_step += 1
-
-                saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
-
+            saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
+        return sess,  pred, x, training
     def load_model(self, model_name):
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
