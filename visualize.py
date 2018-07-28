@@ -50,14 +50,22 @@ def visualize(model_name):
         trans = np.reshape(tru,(3,4))[:3,3]
         xdatatrue.append(trans[0])
         ydatatrue.append(trans[2])
-        line2.set_xdata(xdatatrue)
-        line2.set_ydata(ydatatrue)
+        #line2.set_xdata(xdatatrue)
+        #line2.set_ydata(ydatatrue)
     dat = data.get_test(MAX_BATCH_SIZE)
     last = np.eye(4)
+
+    plot_numbers=[[],[],[],[],[],[]]
+
+
+
     while dat is not None:
         vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
         for v in vec:
-            print(v)
+            for i in range(6):
+                plot_numbers[i].append(v[i])
+
+
             d_transl = v[:3]
             d_rot_mat = eulerAnglesToRotationMatrix(v[3:])
 
@@ -71,12 +79,15 @@ def visualize(model_name):
 
             xdata.append(next[0,3])
             ydata.append(next[2,3])
-            line.set_xdata(xdata)
-            line.set_ydata(ydata)
-            plt.draw()
-            plt.pause(1e-17)
-            time.sleep(0.01)
+            #line.set_xdata(xdata)
+            #line.set_ydata(ydata)
+            #plt.draw()
+            #plt.pause(1e-17)
+            #time.sleep(0.01)
 
         dat = data.get_test(MAX_BATCH_SIZE)
-    plt.show()
+    for i in range(6):
+        plt.plot(plot_numbers[i])
+        plt.show()
 
+    plt.show()
