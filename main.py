@@ -2,6 +2,7 @@ import argparse
 from loader import Loader
 from model import Model
 from visualize import visualize
+
 EPOCHS = 100
 ITERATIONS = 100
 BATCH_SIZE = 8
@@ -21,5 +22,5 @@ if __name__ == '__main__':
 
     if args.mode == 'test':
         idx = int(args.id)
-        print("Visalize {0}...".format(idx))
+        print("Visualize {0}...".format(idx))
         visualize('model_{:05}.ckpt'.format(idx))
