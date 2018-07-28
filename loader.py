@@ -25,18 +25,12 @@ class Loader:
         self.training_dataset = []
         self.validation_dataset = []
 
-
-
         for id in range(0, TRAINING_SEQS):
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.training_dataset += self.load(path, id)
 
-        shuffle(self.training_dataset)
 
         self.training_dataset = self.training_dataset[:350]
-
-        #for i in range(50):
-        #    print(self.training_dataset[i].get_matrix())
 
         valid_split = int(len(self.training_dataset) * 0.8)
         self.training = self.training_dataset
