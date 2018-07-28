@@ -65,20 +65,29 @@ def visualize(model_name):
     last = np.eye(4)
     while dat is not None:
         vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
+
+
+
+
         for v in vec:
+            #v = np.array([0,0,1,0,0.01,0])
+            print(v)
             d_transl = v[:3]
             d_rot_mat = eulerAnglesToRotationMatrix(v[3:])
+
             d_transl = np.expand_dims(d_transl, axis=1)
             #print(d_transl)
             #print(d_rot_mat)
             mat = np.hstack([d_rot_mat,d_transl])
             mat = np.vstack([mat,[0,0,0,1]])
-            #print(mat)
+        #    print(mat)
             next = np.matmul(last, np.linalg.inv(mat))
-            #print(next)
-            #abc=input()
+        #    print(next)
+
+        #    abc=input()
             last = next
 
+<<<<<<< HEAD
             #novi kod
             plot_pos = np.linalg.inv(next)
             xdata.append(plot_pos[0,3])
@@ -88,6 +97,13 @@ def visualize(model_name):
             #xdata.append(next[0, 3])
             #ydata.append(next[2, 3])
 
+=======
+            abc = next#np.linalg.inv(next)
+            print(abc)
+        #    lla=input()
+            xdata.append(abc[0,3])
+            ydata.append(abc[2,3])
+>>>>>>> 1d829b7b35bde501ea12446442caee3e9dd1e3ac
             line.set_xdata(xdata)
             line.set_ydata(ydata)
             plt.draw()
