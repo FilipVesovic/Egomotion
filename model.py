@@ -81,7 +81,7 @@ class Model:
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
 
-        saver = tf.train.import_meta_graph(meta_name)
+        saver = tf.train.import_meta_graph(os.path.join(MODEL_DIR, meta_name))
         sess = tf.Session(config = config)
 
         saver.restore(sess, os.path.join(MODEL_DIR, model_name))
