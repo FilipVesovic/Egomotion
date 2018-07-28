@@ -57,15 +57,17 @@ def visualize(model_name):
 
     plot_numbers=[[],[],[],[],[],[]]
 
-
+    count = 0
 
     while dat is not None:
+        if(count > 280):
+            break
         vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
         for v in vec:
             for i in range(6):
                 plot_numbers[i].append(v[i])
 
-
+            count += 1
             d_transl = v[:3]
             d_rot_mat = eulerAnglesToRotationMatrix(v[3:])
 
