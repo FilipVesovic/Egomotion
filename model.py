@@ -67,7 +67,8 @@ class Model:
 
             for iter in range(iterations):
                 data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
-                _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
+                with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
+                    _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
                 writer.add_summary(summary, step)
                 step+= 1
 
