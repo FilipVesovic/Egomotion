@@ -79,8 +79,15 @@ def visualize(model_name):
             #abc=input()
             last = next
 
-            xdata.append(next[0,3])
-            ydata.append(next[2,3])
+            #novi kod
+            plot_pos = np.linalg.inv(next)
+            xdata.append(plot_pos[0,3])
+            ydata.append(plot_pos[2,3])
+
+            #stari kod
+            #xdata.append(next[0, 3])
+            #ydata.append(next[2, 3])
+
             line.set_xdata(xdata)
             line.set_ydata(ydata)
             plt.draw()
