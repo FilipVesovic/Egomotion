@@ -23,5 +23,5 @@ if __name__ == '__main__':
     if args.mode == 'test':
         idx = int(args.id)
         print("Visalize {0}...".format(idx))
-        sess, pred, x, training = model.load_model('model_{:05}.ckpt'.format(idx))
+        sess, pred, x, training = model.load_model('model_{:05}.ckpt'.format(idx),'model_{:05}.ckpt.meta'.format(idx))
         visualize(model, sess, pred, x, training)

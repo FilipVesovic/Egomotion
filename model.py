@@ -76,12 +76,12 @@ class Model:
 
             saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
         return sess,  pred, x, training
-    def load_model(self, model_name):
+    def load_model(self, model_name, meta_name):
 
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
 
-        saver = tf.train.Saver()
+        saver = tf.train.import_meta_graph(meta_name)
         sess = tf.Session(config = config)
 
         saver.restore(sess, os.path.join(MODEL_DIR, model_name))
