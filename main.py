@@ -20,5 +20,6 @@ if __name__ == '__main__':
         model.train(loader, EPOCHS, ITERATIONS, BATCH_SIZE)
 
     if args.mode == 'test':
-        print("Visalize...")
-        visualize('model_{:05}.ckpt'.format(args.id))
+        idx = int(args.id)
+        print("Visalize {0}...".format(idx))
+        visualize('model_{:05}.ckpt'.format(idx))
