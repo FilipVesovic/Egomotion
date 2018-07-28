@@ -9,7 +9,7 @@ BATCH_SIZE = 8
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = "Train and visualize model")
-    parser.add_argument("mode", nargs = '?')
+    parser.add_argument("mode")
     parser.add_argument("id")
     args, leftovers = parser.parse_known_args()
 
