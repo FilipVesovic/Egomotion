@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = "Train and visualize model")
     parser.add_argument("mode")
-    parser.add_argument("id")
+    parser.add_argument("-id", default = 0)
     args, leftovers = parser.parse_known_args()
 
     if args.mode == 'train':
