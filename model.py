@@ -4,8 +4,11 @@ import tensorflow as tf
 from network import get_graph
 from loader import Loader
 
-WIDTH = int(1241/1.5)
-HEIGHT = int(376/1.5)
+WIDTH_ORIG = 1226
+HEIGHT_ORIG = 370
+
+WIDTH = WIDTH_ORIG//2
+HEIGHT = HEIGHT_ORIG//2
 
 LOG_DIR = "log"
 MODEL_DIR = "model"
@@ -20,7 +23,7 @@ class Model:
             for dim in shape:
                 variable_parameters *= dim.value
             total_parameters += variable_parameters
-        print(total_parameters)
+        print('Total number of parameters:',total_parameters)
 
     def train(self, dataset, epochs, iterations, batch_size):
         val_iterations = 10
@@ -28,10 +31,10 @@ class Model:
         x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4], name = "x")
         y = tf.placeholder(tf.float32, [None, 6])
         training = tf.placeholder(tf.bool, name = "training")
+
         pred = get_graph(x, training)
 
-        #batch_size x 6
-        loss = tf.reduce_mean(tf.reduce_mean(tf.abs(y - pred),axis = 1), axis=0)
+        loss = tf.reduce_mean(tf.reduce_mean(tf.abs(y - pred), axis = 1), axis = 0)
 
         training_summary = tf.summary.scalar("training_loss", loss)
         validation_summary = tf.summary.scalar("validation_loss", loss)
@@ -40,7 +43,7 @@ class Model:
         with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
             opt = optimizer.minimize(loss)
 
-        saver = tf.train.Saver( max_to_keep=10000)
+        saver = tf.train.Saver(max_to_keep=10000)
 
         idx = 0
         while(os.path.exists(os.path.join(LOG_DIR, "egomotion" +str(idx)))):
@@ -59,6 +62,7 @@ class Model:
 
         sess = tf.Session(config=config)
         sess.run(tf.global_variables_initializer())
+
         for epoch in range(epochs):
 
             for iter in range(iterations):
@@ -74,8 +78,10 @@ class Model:
                 writer.add_summary(summary, val_step)
                 val_step += 1
 
+
             saver.save(sess, os.path.join(MODEL_DIR, "model_{:05}.ckpt".format(epoch)))
-        return sess,  pred, x, training
+        return sess, pred, x, training
+
     def load_model(self, model_name, meta_name):
 
         config = tf.ConfigProto()
@@ -86,11 +92,6 @@ class Model:
 
         saver.restore(sess, os.path.join(MODEL_DIR, model_name))
         graph = tf.get_default_graph()
-
-#        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4])
-#        training = tf.placeholder(tf.bool)
-
-#        pred = get_graph(x, training)
 
         pred = graph.get_tensor_by_name("pred/BiasAdd:0")
         x = graph.get_tensor_by_name("x:0")

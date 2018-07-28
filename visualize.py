@@ -28,7 +28,7 @@ def eulerAnglesToRotationMatrix(theta) :
     R = np.dot(R_z, np.dot( R_y, R_x ))
     return R
 
-def visualize(model, sess, pred, x, training):
+def visualize(model, sess, pred, x, training, sequence):
 
     xdata = []
     ydata = []
@@ -42,7 +42,7 @@ def visualize(model, sess, pred, x, training):
     line, = axes.plot(xdata, ydata, 'r-')
     line2, = axes.plot(xdata, ydata, 'b-')
 
-    data = TestLoader(0)
+    data = TestLoader(sequence)
     truth = data.get_truth()
     for tru in truth:
         trans = np.reshape(tru,(3,4))[:3,3]
@@ -50,6 +50,7 @@ def visualize(model, sess, pred, x, training):
         ydatatrue.append(trans[2])
         line2.set_xdata(xdatatrue)
         line2.set_ydata(ydatatrue)
+
     dat = data.get_test(MAX_BATCH_SIZE)
     last = np.eye(4)
 
@@ -58,9 +59,7 @@ def visualize(model, sess, pred, x, training):
     count = 0
 
     while dat is not None:
-        if(count > 280):
-            break
-        vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
+        vec = model.predict(sess, pred, x, training, dat)
         for v in vec:
             for i in range(6):
                 plot_numbers[i].append(v[i])
@@ -73,10 +72,6 @@ def visualize(model, sess, pred, x, training):
 
             mat = np.hstack([d_rot_mat,d_transl])
             mat = np.vstack([mat,[0,0,0,1]])
-
-            # delta = M2^-1 M1
-            # delta M1^-1 = M2^-1
-            # M1  delta^-1= M2
 
             next = np.matmul(last, np.linalg.inv(mat))
             last = next
