@@ -54,7 +54,7 @@ def visualize(model_name):
         ydatatrue.append(trans[2])
         line2.set_xdata(xdatatrue)
         line2.set_ydata(ydatatrue)
-    dat = data.get_test(batch_size)
+    dat = data.get_test(MAX_BATCH_SIZE)
     last = np.eye(4)
     while dat is not None:
         vec = model.predict(sess, pred, x, training, dat) #dx dy dz alfa beta gama
@@ -81,5 +81,5 @@ def visualize(model_name):
             plt.pause(1e-17)
             time.sleep(0.01)
 
-        dat = data.get_test(batch_size)
+        dat = data.get_test(MAX_BATCH_SIZE)
     plt.show()
