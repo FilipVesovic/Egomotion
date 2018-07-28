@@ -30,7 +30,7 @@ class Loader:
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.training_dataset += self.load(path, id)
 
-        self.training_dataset = self.training_dataset[:100]
+        self.training_dataset = self.training_dataset[:50]
 
         valid_split = int(len(self.training_dataset) * 0.8)
         self.training = self.training_dataset
