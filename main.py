@@ -6,7 +6,7 @@ import numpy as np
 
 EPOCHS = 20
 ITERATIONS = 100
-BATCH_SIZE = 8
+BATCH_SIZE = 16
 
 np.random.seed(0)
 
