@@ -30,7 +30,8 @@ class Model:
         training = tf.placeholder(tf.bool)
         pred = get_graph(x, training)
 
-        loss = tf.reduce_mean(tf.square(y - pred))
+        #batch_size x 6
+        loss = tf.reduce_mean(tf.reduce_mean(tf.abs(y - pred),axis = 1), axis=0)
 
         training_summary = tf.summary.scalar("training_loss", loss)
         validation_summary = tf.summary.scalar("validation_loss", loss)
