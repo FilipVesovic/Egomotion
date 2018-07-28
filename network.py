@@ -14,7 +14,7 @@ def get_graph(x, is_training):
     pool2 = tf.layers.max_pooling2d(inputs=relu2, pool_size=[2, 2], strides=2, padding='VALID', name='pool2')
     bn2 = tf.layers.batch_normalization(pool2, training=is_training,name= 'bn2')
 
-    conv3 = tf.layers.conv2d(inputs=bn2, filters=32, kernel_size=[3, 3], strides=1, padding='SAME', name='conv3',kernel_initializer=tf.contrib.layers.xavier_initializer(), kernel_regularizer = tf.contrib.layers.l2_regularizer(scope = EPS)
+    conv3 = tf.layers.conv2d(inputs=bn2, filters=32, kernel_size=[3, 3], strides=1, padding='SAME', name='conv3',kernel_initializer=tf.contrib.layers.xavier_initializer(), kernel_regularizer = tf.contrib.layers.l2_regularizer(scope = EPS))
     relu3 = tf.nn.relu(conv3, name='relu3')
     pool3 = tf.layers.max_pooling2d(inputs=relu3, pool_size=[2, 2], strides=2, padding='VALID', name='pool3')
     bn3 = tf.layers.batch_normalization(pool3, training=is_training, name= 'bn3')
