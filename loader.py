@@ -13,8 +13,8 @@ DATASET_DIR = os.path.join("dataset", "sequences")
 
 TRAINING_SEQS = 11
 
-WIDTH = 256
-HEIGHT = 256
+WIDTH = 512
+HEIGHT = 512
 
 class Loader:
     def __init__(self):
@@ -24,16 +24,21 @@ class Loader:
         self.training_dataset = []
         self.validation_dataset = []
 
+
+#need shuffle
         for id in range(0, TRAINING_SEQS):
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.training_dataset += self.load(path, id)
+
+        self.training_dataset = self.training_dataset[:100]
 
         valid_split = int(len(self.training_dataset) * 0.8)
         self.training = self.training_dataset
         self.training_dataset = self.training[:valid_split]
         self.validation_dataset = self.training[valid_split:]
 
-        #self.visualize(self.training_dataset[:2000])
+
+    #    self.visualize(self.training_dataset[:500])
 
         print("Training set size: ", len(self.training_dataset))
         print("Validation set size: ", len(self.validation_dataset))
@@ -114,14 +119,13 @@ class TestLoader:
     def get_test(self, batch_size):
         low = self.next
         high = self.next + batch_size
-
+        print(low,high)
         frame_id = low
         dataset = None
 
         while frame_id < high and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
             camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id))
             camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_1",  "{:06}.png".format(frame_id))
-
             camera1_image = cv2.imread(camera1_path, 0)
             camera2_image = cv2.imread(camera2_path, 0)
 
@@ -136,12 +140,14 @@ class TestLoader:
             camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
             camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
-            frame = np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)
+            frame = np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)/255
+
             if dataset is None:
                 dataset = np.expand_dims(frame, axis = 0)
             else:
                 dataset = np.concatenate((dataset, np.expand_dims(frame, axis = 0)))
             frame_id += 1
+        self.next = high
         return dataset
 
 class Annotation:
@@ -169,8 +175,11 @@ class Annotation:
         matrix1 = np.vstack([matrix1, [0,0,0,1]])
         matrix2 = np.vstack([matrix2, [0,0,0,1]])
 
+#delta = M2^-1 M1
+#delta M1^-1 = M2^-1
+# M1  delta^-1= M2
         rotation = np.matmul(np.linalg.inv(matrix2), matrix1)
-
+        #rotation = np.matmul(matrix2, np.linalg.inv(matrix1))
         self.translation_mat = rotation[0:3,3]
         v = self.rotationMatrixToEulerAngles(rotation[:3,:3])
         self.x = v[0]
@@ -198,7 +207,7 @@ class Annotation:
         camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
         camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
-        return np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)
+        return np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)/255
 
     def print_anno(self):
         print("#{0} #{1} {2}".format(self.sequence_id, self.frame_id, self.get_matrix()))

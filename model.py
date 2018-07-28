@@ -4,8 +4,8 @@ import tensorflow as tf
 from network import get_graph
 from loader import Loader
 
-WIDTH = 256
-HEIGHT = 256
+WIDTH = 512
+HEIGHT = 512
 
 LOG_DIR = "log"
 MODEL_DIR = "model"
@@ -35,11 +35,11 @@ class Model:
         training_summary = tf.summary.scalar("training_loss", loss)
         validation_summary = tf.summary.scalar("validation_loss", loss)
 
-        optimizer = tf.train.AdamOptimizer(5e-4)
+        optimizer = tf.train.AdamOptimizer()
         with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
             opt = optimizer.minimize(loss)
 
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(max_to_keep=10000)
 
         idx = 0
         while(os.path.exists(os.path.join(LOG_DIR, "egomotion" +str(idx)))):
@@ -61,14 +61,15 @@ class Model:
             for epoch in range(epochs):
 
                 for iter in range(iterations):
+
                     data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
                     _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
                     writer.add_summary(summary, step)
                     step+= 1
 
-                data, labels = dataset.get_batch(dataset.validation_dataset, batch_size)
 
                 for iter in range(val_iterations):
+                    data, labels = dataset.get_batch(dataset.validation_dataset, batch_size)
                     _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
                     writer.add_summary(summary, val_step)
                     val_step += 1
