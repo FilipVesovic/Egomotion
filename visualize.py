@@ -7,7 +7,7 @@ from loader import TestLoader
 import numpy as np
 import math
 
-MAX_BATCH_SIZE = 16
+MAX_BATCH_SIZE = 8
 
 def eulerAnglesToRotationMatrix(theta) :
     R_x = np.array([[1,         0,                  0                   ],
