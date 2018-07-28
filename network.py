@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 
 def get_graph(x, is_training):
-    #256x256x4
     conv1 = tf.layers.conv2d(inputs=x, filters=32, kernel_size=[7, 7], strides=1, padding='SAME', name='conv1',kernel_initializer=tf.contrib.layers.xavier_initializer())
     relu1 = tf.nn.relu(conv1, name='relu1')
     pool1 = tf.layers.max_pooling2d(inputs=relu1, pool_size=[2, 2], strides=2, padding='VALID', name='pool1')

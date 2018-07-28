@@ -10,7 +10,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = "Train and visualize model")
     parser.add_argument("mode", nargs = '?')
+    parser.add_argument("id")
     args, leftovers = parser.parse_known_args()
+
     if args.mode == 'train':
         print("Training...")
         loader = Loader()
@@ -18,5 +20,6 @@ if __name__ == '__main__':
         model.train(loader, EPOCHS, ITERATIONS, BATCH_SIZE)
 
     if args.mode == 'test':
-        print("Visalize...")
-        visualize('model_00005.ckpt')
+        idx = int(args.id)
+        print("Visalize {0}...".format(idx))
+        visualize('model_{:05}.ckpt'.format(idx))
