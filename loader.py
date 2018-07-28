@@ -30,7 +30,7 @@ class Loader:
             self.training_dataset += self.load(path, id)
 
 
-        self.training_dataset = self.training_dataset[:350]
+#        self.training_dataset = self.training_dataset[:350]
 
         valid_split = int(len(self.training_dataset) * 0.8)
         self.training = self.training_dataset
@@ -38,7 +38,7 @@ class Loader:
         self.validation_dataset = self.training[valid_split:]
 
 
-        self.visualize(self.training_dataset[:280])
+        #self.visualize(self.training_dataset[:280])
 
         print("Training set size: ", len(self.training_dataset))
         print("Validation set size: ", len(self.validation_dataset))
