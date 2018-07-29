@@ -137,7 +137,7 @@ class TestLoader:
                 camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
                 curFrame = [np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)
-                if(frame == None):
+                if(frame is None):
                     frame = curFrame
                 else:
                     frame = np.concatenate([frame, curFrame], axis = 2)
