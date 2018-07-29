@@ -4,7 +4,7 @@ from model import Model
 from visualize import visualize
 import numpy as np
 
-EPOCHS = 20
+EPOCHS = 200
 ITERATIONS = 100
 BATCH_SIZE = 16
 

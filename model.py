@@ -33,13 +33,22 @@ class Model:
         training = tf.placeholder(tf.bool, name = "training")
 
         pred = get_graph(x, training)
-
-        loss = tf.reduce_mean(tf.reduce_mean(tf.abs(y - pred), axis = 1), axis = 0)
+        #fact = tf.exp(tf.abs(y - pred))-1
+        fact = tf.square(y - pred)
+        scale = tf.constant([1., 1., 1., 1., 1., 1.])
+        per_train = scale * tf.reduce_mean(fact, axis = 0)
+        loss = tf.reduce_mean(per_train, axis = 0)
 
         training_summary = tf.summary.scalar("training_loss", loss)
         validation_summary = tf.summary.scalar("validation_loss", loss)
 
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+        translation_summary = tf.summary.scalar("translation_loss", (per_train[0]+per_train[1]+per_train[2]))
+        rotation_summary = tf.summary.scalar("rotation_loss", (per_train[3]+per_train[4]+per_train[5]))
+
+        translation_val_summary = tf.summary.scalar("translation_loss_val", (per_train[0]+per_train[1]+per_train[2]))
+        rotation_val_summary = tf.summary.scalar("rotation_loss_val", (per_train[3]+per_train[4]+per_train[5]))
+
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.0001)
         with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
             opt = optimizer.minimize(loss)
 
@@ -68,15 +77,20 @@ class Model:
             for iter in range(iterations):
                 data, labels = dataset.get_batch(dataset.training_dataset, batch_size)
                 with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
-                    _, loss_value, summary = sess.run([opt, loss, training_summary], feed_dict = {x : data, y : labels, training : True})
+                    _, loss_value, summary, s2, s3 = sess.run([opt, loss, training_summary, translation_summary, rotation_summary], feed_dict = {x : data, y : labels, training : True})
                 writer.add_summary(summary, step)
+                writer.add_summary(s2, step)
+                writer.add_summary(s3, step)
+
                 step+= 1
 
 
             for iter in range(val_iterations):
                 data, labels = dataset.get_batch(dataset.validation_dataset, batch_size)
-                _, val_loss_value, summary = sess.run([pred, loss, validation_summary], feed_dict = {x : data, y : labels, training : False})
+                _, val_loss_value, summary, s2, s3 = sess.run([pred, loss, validation_summary, translation_val_summary, rotation_val_summary], feed_dict = {x : data, y : labels, training : False})
                 writer.add_summary(summary, val_step)
+                writer.add_summary(s2, step)
+                writer.add_summary(s3, step)
                 val_step += 1
 
 
