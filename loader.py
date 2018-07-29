@@ -136,7 +136,7 @@ class TestLoader:
                 camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
                 camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
-                curFrame = [np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)
+                curFrame = np.concatenate([np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)], axis=2)
                 if(frame is None):
                     frame = curFrame
                 else:
@@ -207,7 +207,7 @@ class Annotation:
             camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
             camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
-            curFrame = [np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)
+            curFrame = np.concatenate([np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)], axis=2)
             if(frame == None):
                 frame = curFrame
             else:
