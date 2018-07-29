@@ -43,7 +43,7 @@ class Model:
         with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
             opt = optimizer.minimize(loss)
 
-        saver = tf.train.Saver(max_to_keep=10000)
+        saver = tf.train.Saver(tf.global_variables(), max_to_keep=10000)
 
         idx = 0
         while(os.path.exists(os.path.join(LOG_DIR, "egomotion" +str(idx)))):
@@ -63,6 +63,9 @@ class Model:
         sess = tf.Session(config=config)
         sess.run(tf.global_variables_initializer())
 
+        batch = dataset.get_dataset()
+        first_batch = sess.run(batch)
+        print(first_batch)
         for epoch in range(epochs):
 
             for iter in range(iterations):

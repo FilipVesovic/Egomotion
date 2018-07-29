@@ -42,6 +42,63 @@ class Loader:
         print("Training set size: ", len(self.training_dataset))
         print("Validation set size: ", len(self.validation_dataset))
 
+    def imgs_input_fn(filenames, labels=None, perform_shuffle=False, repeat_count=1, batch_size=1):
+        def _parse_function(filename, label):
+            seq = filename[0]
+            frame = filename[1]
+
+            camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(seq), "image_0",  "{:06}.png".format(frame))
+            camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(seq), "image_1",  "{:06}.png".format(frame))
+            camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(seq), "image_0",  "{:06}.png".format(frame + 1))
+            camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(seq), "image_1",  "{:06}.png".format(frame + 1))
+            def get_image(filename):
+                image_string = tf.read_file(filename)
+                image = tf.image.decode_image(image_string, channels=1)
+                image.set_shape([None, None, None])
+                image = tf.image.resize_images(image, [HEIGHT, WIDTH])
+                image = tf.subtract(image, 127.5) # Zero-center by mean pixel
+                image = tf.divide(image, 127.5)
+                image.set_shape([HEIGHT, WIDTH, 3])
+                return image
+
+            image1 = get_image(camera1_path)
+            image2 = get_image(camera2_path)
+            image3 = get_image(camera1_path_next)
+            image4 = get_image(camera2_path_next)
+
+
+            d = dict([image1, image2, image3, image4]), label
+            return d
+
+        if labels is None:
+            labels = [0]*len(filenames)
+        labels=np.array(labels)
+        # Expand the shape of "labels" if necessory
+        if len(labels.shape) == 1:
+            labels = np.expand_dims(labels, axis=1)
+        filenames = tf.constant(filenames)
+        labels = tf.constant(labels)
+        labels = tf.cast(labels, tf.float32)
+        dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
+        dataset = dataset.map(_parse_function)
+        if perform_shuffle:
+            # Randomizes input using a window of 256 elements (read into memory)
+            dataset = dataset.shuffle(buffer_size=256)
+        dataset = dataset.repeat(repeat_count)  # Repeats dataset this # times
+        dataset = dataset.batch(batch_size)  # Batch size to use
+        iterator = dataset.make_one_shot_iterator()
+        batch_features, batch_labels = iterator.get_next()
+        return batch_features, batch_labels
+
+    def get_dataset(self):
+        imgs = []
+        labels = []
+        for data in self.training_dataset:
+            imgs.append(data.get_loc())
+            labels.append(data.get_matrix())
+        return imgs_input_fn(imgs,labels)
+
+
     def visualize(self, dataset):
         plot_numbers = [[], [], [], [], [], []]
         for data in dataset:
@@ -182,6 +239,9 @@ class Annotation:
         self.translation_mat = rotation[0:3,3]
         v = self.rotationMatrixToEulerAngles(rotation[:3,:3])
         self.matrix = np.array([self.translation_mat[0], self.translation_mat[1], self.translation_mat[2], v[0], v[1], v[2]])
+
+    def get_loc(self):
+        return [self.sequence_id, self.frame_id]
 
     def get_matrix(self):
         return self.matrix
