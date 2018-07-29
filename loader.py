@@ -27,7 +27,7 @@ class Loader:
         self.training_dataset = []
         self.validation_dataset = []
 
-        for id in range(0, 1500):
+        for id in range(0, TRAINING_SEQS):
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.training_dataset += self.load(path, id)
 
@@ -55,7 +55,7 @@ class Loader:
         with open(path, "r") as file:
             dataset = []
             frame_id = 0
-            last_matrix = None
+            last = []
 
             for line in file:
                 numbers_text = line.split()
@@ -64,12 +64,11 @@ class Loader:
                     numbers[i] = float(numbers_text[i])
 
                 projection_matrix = np.reshape(numbers,(MATRIX_ROWS, MATRIX_COLUMNS))
+                last.append(projection_matrix)
 
-                if(last_matrix is not None):
-                    anno = Annotation(sequence_id, frame_id - 1, last_matrix, projection_matrix)
+                if(len(last) >= 5):
+                    anno = Annotation(sequence_id, frame_id - 4, last[frame_id - 4 : frame_id + 1])
                     dataset.append(anno)
-                last_matrix = projection_matrix
-
                 frame_id += 1
 
         return dataset
@@ -118,29 +117,31 @@ class TestLoader:
         frame_id = low
         dataset = None
 
-        while frame_id < high and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id + 1))):
-            camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id))
-            camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_1",  "{:06}.png".format(frame_id))
-            camera1_image = cv2.imread(camera1_path, 0)
-            camera2_image = cv2.imread(camera2_path, 0)
+        while frame_id < high and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id + 4))):
+            frame = None
+            for i in range(frame_id, frame_id + 5):
+                camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(i))
+                camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(i))
 
-            camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id + 1))
-            camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_1",  "{:06}.png".format(frame_id + 1))
+                camera1_image = cv2.imread(camera1_path, 0)
+                camera2_image = cv2.imread(camera2_path, 0)
 
-            camera1_image_next = cv2.imread(camera1_path_next, 0)
-            camera2_image_next = cv2.imread(camera2_path_next, 0)
+                camera1_image = camera1_image[:HEIGHT_ORIG, :WIDTH_ORIG]
+                camera2_image = camera2_image[:HEIGHT_ORIG, :WIDTH_ORIG]
+                camera1_image_next = camera1_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
+                camera2_image_next = camera2_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
 
-            camera1_image = camera1_image[:HEIGHT_ORIG, :WIDTH_ORIG]
-            camera2_image = camera2_image[:HEIGHT_ORIG, :WIDTH_ORIG]
-            camera1_image_next = camera1_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
-            camera2_image_next = camera2_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
+                camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
+                camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
+                camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
+                camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
-            camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
-            camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
-            camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
-            camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
+                curFrame = [np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)
+                if(frame == None):
+                    frame = curFrame
+                else:
+                    frame = np.concatenate([frame, curFrame], axis = 2)
 
-            frame = np.concatenate([np.expand_dims(camera1_image,axis=2),np.expand_dims(camera2_image,axis=2),np.expand_dims(camera1_image_next,axis=2),np.expand_dims(camera2_image_next,axis=2)],axis=2)
             frame = (frame-127.5)/127.5
 
             if dataset is None:
@@ -170,12 +171,12 @@ class Annotation:
 
         return np.array([x, y, z])
 
-    def __init__(self, sequence_id, frame_id, matrix1, matrix2):
+    def __init__(self, sequence_id, frame_id, matrixs):
         self.sequence_id = sequence_id
         self.frame_id = frame_id
 
-        matrix1 = np.vstack([matrix1, [0,0,0,1]])
-        matrix2 = np.vstack([matrix2, [0,0,0,1]])
+        matrix1 = np.vstack([matrixs[0], [0,0,0,1]])
+        matrix2 = np.vstack([matrixs[-1], [0,0,0,1]])
 
         rotation = np.matmul(np.linalg.inv(matrix2), matrix1)
 
@@ -187,33 +188,35 @@ class Annotation:
         return self.matrix
 
     def get_image(self):
-        camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id))
-        camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(self.frame_id))
 
-        camera1_image = cv2.imread(camera1_path, 0)
-        camera2_image = cv2.imread(camera2_path, 0)
+        frame = None
+        for i in range(self.frame_id, self.frame_id + 5):
+            camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(i))
+            camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(i))
 
-        camera1_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(self.frame_id + 1))
-        camera2_path_next = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(self.frame_id + 1))
+            camera1_image = cv2.imread(camera1_path, 0)
+            camera2_image = cv2.imread(camera2_path, 0)
 
-        camera1_image_next = cv2.imread(camera1_path_next, 0)
-        camera2_image_next = cv2.imread(camera2_path_next, 0)
+            camera1_image = camera1_image[:HEIGHT_ORIG, :WIDTH_ORIG]
+            camera2_image = camera2_image[:HEIGHT_ORIG, :WIDTH_ORIG]
+            camera1_image_next = camera1_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
+            camera2_image_next = camera2_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
 
-        camera1_image = camera1_image[:HEIGHT_ORIG, :WIDTH_ORIG]
-        camera2_image = camera2_image[:HEIGHT_ORIG, :WIDTH_ORIG]
-        camera1_image_next = camera1_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
-        camera2_image_next = camera2_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
+            camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
+            camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
+            camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
+            camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
-        camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
-        camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
-        camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
-        camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
+            curFrame = [np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)
+            if(frame == None):
+                frame = curFrame
+            else:
+                frame = np.concatenate([frame, curFrame], axis = 2)
 
         #cv2.imshow('image',camera1_image)
         #cv2.waitKey(0)
         #cv2.destroyAllWindows()
 
-        frame = np.concatenate([np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2), np.expand_dims(camera1_image_next, axis=2), np.expand_dims(camera2_image_next, axis=2)], axis=2)
         frame = (frame-127.5)/127.5
         return frame
 

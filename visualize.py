@@ -51,6 +51,8 @@ def visualize(model, sess, pred, x, training, sequence):
         line2.set_xdata(xdatatrue)
         line2.set_ydata(ydatatrue)
 
+    last = truth[:4]
+
     dat = data.get_test(MAX_BATCH_SIZE)
     last = np.eye(4)
 
@@ -73,8 +75,8 @@ def visualize(model, sess, pred, x, training, sequence):
             mat = np.hstack([d_rot_mat,d_transl])
             mat = np.vstack([mat,[0,0,0,1]])
 
-            next = np.matmul(last, np.linalg.inv(mat))
-            last = next
+            next = np.matmul(last[-4], np.linalg.inv(mat))
+            last.append(next)
 
             xdata.append(next[0,3])
             ydata.append(next[2,3])
