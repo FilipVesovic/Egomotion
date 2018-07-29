@@ -34,7 +34,8 @@ class Model:
 
         pred = get_graph(x, training)
         #fact = tf.exp(tf.abs(y - pred))-1
-        fact = tf.square(y - pred)
+        #fact = tf.square(y - pred)
+        fact = tf.abs(y - pred)
         scale = tf.constant([1., 1., 1., 1., 1., 1.])
         per_train = scale * tf.reduce_mean(fact, axis = 0)
         loss = tf.reduce_mean(per_train, axis = 0)

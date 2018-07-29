@@ -27,7 +27,7 @@ class Loader:
         self.training_dataset = []
         self.validation_dataset = []
 
-        for id in range(0, TRAINING_SEQS):
+        for id in range(0, 1500):
             path = os.path.join(LABELS_DIR, labels_paths[id])
             self.training_dataset += self.load(path, id)
 
