@@ -128,13 +128,9 @@ class TestLoader:
 
                 camera1_image = camera1_image[:HEIGHT_ORIG, :WIDTH_ORIG]
                 camera2_image = camera2_image[:HEIGHT_ORIG, :WIDTH_ORIG]
-                camera1_image_next = camera1_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
-                camera2_image_next = camera2_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
 
                 camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
                 camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
-                camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
-                camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
                 curFrame = np.concatenate([np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)], axis=2)
                 if(frame is None):
@@ -199,13 +195,9 @@ class Annotation:
 
             camera1_image = camera1_image[:HEIGHT_ORIG, :WIDTH_ORIG]
             camera2_image = camera2_image[:HEIGHT_ORIG, :WIDTH_ORIG]
-            camera1_image_next = camera1_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
-            camera2_image_next = camera2_image_next[:HEIGHT_ORIG, :WIDTH_ORIG]
 
             camera1_image = cv2.resize(camera1_image, (WIDTH, HEIGHT))
             camera2_image = cv2.resize(camera2_image, (WIDTH, HEIGHT))
-            camera1_image_next = cv2.resize(camera1_image_next, (WIDTH, HEIGHT))
-            camera2_image_next = cv2.resize(camera2_image_next, (WIDTH, HEIGHT))
 
             curFrame = np.concatenate([np.expand_dims(camera1_image, axis=2), np.expand_dims(camera2_image, axis=2)], axis=2)
             if(frame == None):
