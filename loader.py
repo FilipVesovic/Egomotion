@@ -120,8 +120,8 @@ class TestLoader:
         while frame_id < high and os.path.exists(os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(frame_id + 4))):
             frame = None
             for i in range(frame_id, frame_id + 5):
-                camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_0",  "{:06}.png".format(i))
-                camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence_id), "image_1",  "{:06}.png".format(i))
+                camera1_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_0",  "{:06}.png".format(i))
+                camera2_path = os.path.join(DATASET_DIR,  "{:02}".format(self.sequence), "image_1",  "{:06}.png".format(i))
 
                 camera1_image = cv2.imread(camera1_path, 0)
                 camera2_image = cv2.imread(camera2_path, 0)
