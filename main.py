@@ -28,4 +28,6 @@ if __name__ == '__main__':
         idx = int(args.id)
         print("Visalize {0}...".format(idx))
         sess, pred, x, training = model.load_model('model_{:05}.ckpt'.format(idx),'model_{:05}.ckpt.meta'.format(idx))
+        all_vars = tf.get_collection(ops.GraphKeys.GLOBAL_VARIABLES)
+        print(all_vars)
         visualize(model, sess, pred, x, training, 0)

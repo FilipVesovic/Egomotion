@@ -61,7 +61,7 @@ def visualize(model, sess, pred, x, training, sequence):
     count = 0
 
     while dat is not None:
-        print(dat)
+        print(dat.shape)
         vec = model.predict(sess, pred, x, training, dat)
         for v in vec:
             for i in range(6):

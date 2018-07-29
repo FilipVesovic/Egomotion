@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import time
 import random
 import tensorflow as tf
-from model import Model
+from network import get_network
 from loader import TestLoader
 import numpy as np
 import math
@@ -38,8 +38,8 @@ def visualize(model, sequence):
     plt.show()
 
     axes = plt.gca()
-    axes.set_xlim(-300, 300)
-    axes.set_ylim(-50, 550)
+    axes.set_xlim(-500, 500)
+    axes.set_ylim(-500, 500)
     line, = axes.plot(xdata, ydata, 'r-')
     line2, = axes.plot(xdata, ydata, 'b-')
 
@@ -52,16 +52,14 @@ def visualize(model, sequence):
         line2.set_xdata(xdatatrue)
         line2.set_ydata(ydatatrue)
 
-    last = truth[:FRAME - 1]
-
     dat = data.get_test(MAX_BATCH_SIZE)
+    last = np.eye(4)
 
     plot_numbers=[[],[],[],[],[],[]]
 
     count = 0
 
     while dat is not None:
-        print(dat.shape)
         vec = model.predict(dat)
         for v in vec:
             for i in range(6):
@@ -76,8 +74,8 @@ def visualize(model, sequence):
             mat = np.hstack([d_rot_mat,d_transl])
             mat = np.vstack([mat,[0,0,0,1]])
 
-            next = np.matmul(last[-FRAME+1], np.linalg.inv(mat))
-            last.append(next)
+            next = np.matmul(last, np.linalg.inv(mat))
+            last = next
 
             xdata.append(next[0,3])
             ydata.append(next[2,3])
