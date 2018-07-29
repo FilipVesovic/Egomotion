@@ -28,7 +28,7 @@ class Model:
     def train(self, dataset, epochs, iterations, batch_size):
         val_iterations = 10
 
-        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 4], name = "x")
+        x = tf.placeholder(tf.float32, [None, HEIGHT, WIDTH, 10], name = "x")
         y = tf.placeholder(tf.float32, [None, 6])
         training = tf.placeholder(tf.bool, name = "training")
 
