@@ -54,7 +54,7 @@ def visualize(model, sess, pred, x, training, sequence):
     last = truth[:4]
 
     dat = data.get_test(MAX_BATCH_SIZE)
-    last = np.eye(4)
+#    last = np.eye(4)
 
     plot_numbers=[[],[],[],[],[],[]]
 
